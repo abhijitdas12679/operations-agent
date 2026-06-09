@@ -1,0 +1,101 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*.pyc
+*$py.class
+
+# Virtual Environment
+
+venv/
+.venv/
+env/
+ENV/
+
+# Environment Variables
+
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+
+# Python Build Files
+
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# FastAPI / Testing
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Databases
+
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+
+*.log
+logs/
+
+# React / Node
+
+node_modules/
+frontend/node_modules/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# React / Vite Build
+
+frontend/build/
+frontend/dist/
+dist/
+.vite/
+.cache/
+
+# Uploads & Generated Files
+
+uploads/
+backend/uploads/
+temp/
+tmp/
+
+# Generated Reports / Exports
+
+backend/outputs/
+reports/
+exports/
+generated_files/
+
+# Secrets
+
+credentials.json
+token.json
+
+# CrewAI
+
+.chromadb/
+crewai_storage/
+
+# IDE
+
+.vscode/
+.idea/
+
+# OS Files
+
+.DS_Store
+Thumbs.db
+
+# Linux / Mac Temp Files
+
+*.swp
+*.swo
