@@ -1,18 +1,27 @@
-export const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export const forceDownload = async (downloadUrl) => {
+  if (!downloadUrl) {
+    throw new Error('Download URL is missing');
+  }
+
   const fullUrl = downloadUrl.startsWith('http')
     ? downloadUrl
     : `${API_BASE_URL}${downloadUrl}`;
 
+  const token = localStorage.getItem('token');
+
   const response = await fetch(fullUrl, {
+    method: 'GET',
     headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      Authorization: token ? `Bearer ${token}` : '',
     },
   });
 
   if (!response.ok) {
-    throw new Error('Download failed');
+    const errorText = await response.text();
+    throw new Error(errorText || 'Download failed');
   }
 
   const blob = await response.blob();
@@ -37,10 +46,13 @@ export const forceDownload = async (downloadUrl) => {
   const link = document.createElement('a');
   link.href = objectUrl;
   link.download = filename;
+  link.style.display = 'none';
 
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
 
-  window.URL.revokeObjectURL(objectUrl);
+  setTimeout(() => {
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(objectUrl);
+  }, 100);
 };
