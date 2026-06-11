@@ -12,6 +12,7 @@ from app.routes import (
     document_routes,
     email_routes,
     meeting_routes,
+    public_task_routes,
     report_routes,
     smtp_routes,
     task_routes,
@@ -24,12 +25,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
+
 allowed_origins = [
     "http://localhost:5173",
     "http://localhost:3000",
 ]
 
-if getattr(settings, "FRONTEND_URL", None):
+if settings.FRONTEND_URL and settings.FRONTEND_URL not in allowed_origins:
     allowed_origins.append(settings.FRONTEND_URL)
 
 app.add_middleware(
@@ -41,18 +43,38 @@ app.add_middleware(
     expose_headers=["Content-Disposition"],
 )
 
-os.makedirs(settings.OUTPUT_DIR, exist_ok=True)
+
+def ensure_output_directories():
+    directories = [
+        settings.OUTPUT_DIR,
+        settings.REPORTS_DIR,
+        settings.EMAILS_DIR,
+        settings.MOMS_DIR,
+        settings.TASKS_DIR,
+        settings.TASK_ATTACHMENTS_DIR,
+        settings.EXPORTS_DIR,
+        os.path.join(settings.OUTPUT_DIR, "task_proofs"),
+    ]
+
+    for directory in directories:
+        os.makedirs(directory, exist_ok=True)
+
+
+ensure_output_directories()
+
 app.mount(
     "/outputs",
     StaticFiles(directory=settings.OUTPUT_DIR),
     name="outputs",
 )
 
+
 app.include_router(auth_routes.router)
 app.include_router(email_routes.router)
 app.include_router(report_routes.router)
 app.include_router(meeting_routes.router)
 app.include_router(task_routes.router)
+app.include_router(public_task_routes.router)
 app.include_router(document_routes.router)
 app.include_router(dashboard_routes.router)
 app.include_router(smtp_routes.router)
@@ -62,14 +84,7 @@ app.include_router(user_routes.router)
 @app.on_event("startup")
 def startup():
     create_all_tables()
-
-    for directory in [
-        settings.OUTPUT_DIR,
-        settings.REPORTS_DIR,
-        settings.EMAILS_DIR,
-        settings.MOMS_DIR,
-    ]:
-        os.makedirs(directory, exist_ok=True)
+    ensure_output_directories()
 
 
 @app.get("/", tags=["Health"])

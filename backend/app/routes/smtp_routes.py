@@ -20,15 +20,19 @@ class SMTPConnectRequest(BaseModel):
     from_name: str | None = None
 
 
+class SMTPTestRequest(BaseModel):
+    to_email: EmailStr | None = None
+
+
 def validate_smtp_payload(payload: SMTPConnectRequest):
     provider = payload.provider.lower().strip()
     smtp_host = payload.smtp_host.lower().strip()
     smtp_port = int(payload.smtp_port)
 
-    if provider not in ["gmail", "outlook"]:
+    if provider not in ["gmail", "outlook", "custom"]:
         raise HTTPException(
             status_code=400,
-            detail="Provider must be either gmail or outlook.",
+            detail="Provider must be gmail, outlook, or custom.",
         )
 
     if provider == "gmail":
@@ -92,7 +96,7 @@ def connect_smtp(
         setting.smtp_port = int(payload.smtp_port)
         setting.smtp_email = payload.smtp_email.lower().strip()
         setting.encrypted_app_password = encrypted_password
-        setting.from_name = payload.from_name
+        setting.from_name = payload.from_name or current_user.full_name
         setting.is_active = 1
     else:
         setting = models.UserSMTPSetting(
@@ -102,7 +106,7 @@ def connect_smtp(
             smtp_port=int(payload.smtp_port),
             smtp_email=payload.smtp_email.lower().strip(),
             encrypted_app_password=encrypted_password,
-            from_name=payload.from_name,
+            from_name=payload.from_name or current_user.full_name,
             is_active=1,
         )
         db.add(setting)
@@ -149,6 +153,7 @@ def get_my_smtp(
 
 @router.post("/test")
 def test_smtp(
+    payload: SMTPTestRequest | None = None,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
@@ -164,17 +169,32 @@ def test_smtp(
     if not setting:
         raise HTTPException(status_code=400, detail="Email account is not connected.")
 
+    to_email = payload.to_email if payload and payload.to_email else current_user.email
+
+    sender_name = current_user.full_name or current_user.username
+    sender_designation = current_user.designation or "Operations Team"
+
     try:
         smtp_service.send_email(
             smtp_setting=setting,
-            to_email=current_user.email,
-            subject="SMTP Test Email",
+            to_email=str(to_email),
+            subject="SMTP Test Email - Operations Agent",
             body=(
-                "Your email account is connected successfully.\n\n"
-                "This is a test email from Operations Agent."
+                f"Hello,\n\n"
+                f"Your email account is connected successfully with Operations Agent.\n\n"
+                f"Sender:\n"
+                f"{sender_name}\n"
+                f"{sender_designation}\n\n"
+                f"Best regards,\n"
+                f"{sender_name}\n"
+                f"{sender_designation}"
             ),
         )
-        return {"success": True, "message": "Test email sent successfully."}
+
+        return {
+            "success": True,
+            "message": "Test email sent successfully.",
+        }
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -197,4 +217,7 @@ def disconnect_smtp(
     db.delete(setting)
     db.commit()
 
-    return {"success": True, "message": "Email account disconnected."}
+    return {
+        "success": True,
+        "message": "Email account disconnected.",
+    }
