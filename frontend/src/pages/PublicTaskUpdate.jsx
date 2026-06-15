@@ -3,23 +3,23 @@ import { useParams } from "react-router-dom";
 import api from "../api";
 
 const C = {
-  pageBg: "#F8F7FF",
+  pageBg: "#F6F7FB",
   card: "#FFFFFF",
-  border: "#F0ECFF",
-  textH: "#1A1035",
-  textB: "#4B4569",
-  textMuted: "#8B7EC8",
-  textLight: "#B0A8D4",
-  primary: "#7C3AED",
-  primaryDark: "#5B21B6",
-  primarySoft: "#EDE9FE",
+  border: "#E6E8F0",
+  textH: "#111827",
+  textB: "#4B5563",
+  textMuted: "#6B7280",
+  textLight: "#9CA3AF",
+  primary: "#4F46E5",
+  primaryDark: "#3730A3",
+  primarySoft: "#EEF2FF",
   success: "#047857",
   successBg: "#ECFDF5",
-  error: "#991B1B",
-  errorBg: "#FEE2E2",
+  error: "#B91C1C",
+  errorBg: "#FEF2F2",
 };
 
-const FONT = "'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
+const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
 
 const label = (value) =>
   value ? value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
@@ -185,9 +185,9 @@ export default function PublicTaskUpdate() {
     }
 
     return (
-      <ul style={styles.mainChecklist}>
+      <div style={styles.checklistBox}>
         {parents.map((item) => (
-          <li key={item.id} style={styles.mainChecklistItem}>
+          <div key={item.id} style={styles.mainChecklistItem}>
             <label style={styles.checkLine}>
               <input
                 type="checkbox"
@@ -195,29 +195,27 @@ export default function PublicTaskUpdate() {
                 onChange={() => toggleChecklist(item.id)}
                 style={styles.checkbox}
               />
-              <span>{item.title}</span>
+              <span style={styles.checkText}>{item.title}</span>
             </label>
 
             {item.children?.length > 0 && (
-              <ul style={styles.subChecklist}>
+              <div style={styles.subChecklist}>
                 {item.children.map((child) => (
-                  <li key={child.id} style={styles.subChecklistItem}>
-                    <label style={styles.checkLine}>
-                      <input
-                        type="checkbox"
-                        checked={isDone(child.is_completed)}
-                        onChange={() => toggleChecklist(child.id)}
-                        style={styles.checkbox}
-                      />
-                      <span>{child.title}</span>
-                    </label>
-                  </li>
+                  <label key={child.id} style={styles.subCheckLine}>
+                    <input
+                      type="checkbox"
+                      checked={isDone(child.is_completed)}
+                      onChange={() => toggleChecklist(child.id)}
+                      style={styles.checkbox}
+                    />
+                    <span style={styles.checkText}>{child.title}</span>
+                  </label>
                 ))}
-              </ul>
+              </div>
             )}
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     );
   };
 
@@ -251,7 +249,9 @@ export default function PublicTaskUpdate() {
           <div>
             <div style={styles.eyebrow}>Operations Agent</div>
             <h1 style={styles.title}>Task Progress Update</h1>
-            <p style={styles.subtitle}>Update your assigned task progress below.</p>
+            <p style={styles.subtitle}>
+              Review your assigned task, update checklist progress, and upload proof of work.
+            </p>
           </div>
 
           <div style={styles.statusBox}>
@@ -264,7 +264,12 @@ export default function PublicTaskUpdate() {
         {error && <div style={styles.error}>{error}</div>}
 
         <div style={styles.card}>
-          <h2 style={styles.taskTitle}>{task.title}</h2>
+          <div style={styles.cardHeader}>
+            <div>
+              <h2 style={styles.taskTitle}>{task.title}</h2>
+              <p style={styles.cardSubText}>Assigned task progress workspace</p>
+            </div>
+          </div>
 
           <div style={styles.badges}>
             <span style={styles.badge}>Priority: {label(task.priority)}</span>
@@ -278,7 +283,7 @@ export default function PublicTaskUpdate() {
 
           <div style={styles.summaryRow}>
             <span>Completed: {completedCount}</span>
-            <span>Total: {allChecklistItems.length}</span>
+            <span>Total Checklist: {allChecklistItems.length}</span>
           </div>
 
           <h3 style={styles.sectionTitle}>Task Details</h3>
@@ -289,7 +294,7 @@ export default function PublicTaskUpdate() {
           <h3 style={styles.sectionTitle}>Assignee Checklist</h3>
           {renderChecklist()}
 
-          <form onSubmit={submitUpdate} style={{ marginTop: 20 }}>
+          <form onSubmit={submitUpdate} style={{ marginTop: 22 }}>
             <div style={styles.grid}>
               <div>
                 <label style={styles.label}>Your Name</label>
@@ -333,7 +338,7 @@ export default function PublicTaskUpdate() {
         </div>
 
         <div style={styles.card}>
-          <h3 style={styles.sectionTitle}>Upload Proof of Work</h3>
+          <h3 style={styles.sectionTitleNoTop}>Upload Proof of Work</h3>
           <p style={styles.muted}>
             Upload screenshot, PDF, DOCX, Excel, TXT, or image as proof of task completion.
           </p>
@@ -344,7 +349,7 @@ export default function PublicTaskUpdate() {
             style={styles.fileInput}
           />
 
-          {proofFile && <div style={styles.fileName}>📎 {proofFile.name}</div>}
+          {proofFile && <div style={styles.fileName}>{proofFile.name}</div>}
 
           <button style={styles.secondaryBtn} onClick={uploadProof} disabled={uploading}>
             {uploading ? "Uploading..." : "Upload Proof"}
@@ -353,16 +358,21 @@ export default function PublicTaskUpdate() {
 
         {task.external_updates?.length > 0 && (
           <div style={styles.card}>
-            <h3 style={styles.sectionTitle}>Previous Updates</h3>
+            <h3 style={styles.sectionTitleNoTop}>Previous Updates</h3>
 
             {task.external_updates.map((update) => (
               <div key={update.id} style={styles.updateBox}>
-                <b>{update.updater_name || update.updater_email || "Assignee"}</b>
-                <p style={styles.updateText}>Progress: {update.progress}%</p>
+                <div style={styles.updateTop}>
+                  <b>{update.updater_name || update.updater_email || "Assignee"}</b>
+                  <span>{update.progress}%</span>
+                </div>
+
                 {update.comment && <p style={styles.updateText}>{update.comment}</p>}
+
                 {update.proof_filename && (
                   <p style={styles.updateText}>Proof uploaded: {update.proof_filename}</p>
                 )}
+
                 <small style={styles.smallText}>
                   {new Date(update.created_at).toLocaleString()}
                 </small>
@@ -379,81 +389,99 @@ const styles = {
   page: {
     minHeight: "100vh",
     background: C.pageBg,
-    padding: "36px 40px 64px",
+    padding: "32px 36px 64px",
     fontFamily: FONT,
   },
   wrapper: {
-    maxWidth: 960,
+    maxWidth: 980,
     margin: "0 auto",
   },
   header: {
     display: "flex",
     justifyContent: "space-between",
-    gap: 20,
+    gap: 22,
     alignItems: "center",
     marginBottom: 24,
-    background: "linear-gradient(135deg,#FFFFFF,#F5F3FF)",
+    background: "linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 45%, #EEF2FF 100%)",
     border: `1px solid ${C.border}`,
-    borderRadius: 22,
-    padding: 24,
-    boxShadow: "0 14px 42px rgba(124,58,237,0.06)",
+    borderRadius: 24,
+    padding: 28,
+    boxShadow: "0 16px 40px rgba(17, 24, 39, 0.06)",
+    flexWrap: "wrap",
   },
   eyebrow: {
-    fontSize: 11,
+    display: "inline-flex",
+    padding: "7px 11px",
+    borderRadius: 999,
+    background: C.primarySoft,
+    color: C.primaryDark,
+    fontSize: 12,
     fontWeight: 800,
-    letterSpacing: "0.12em",
-    textTransform: "uppercase",
-    color: C.textLight,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 800,
     margin: 0,
     color: C.textH,
     letterSpacing: "-0.8px",
   },
   subtitle: {
-    margin: "6px 0 0",
+    margin: "8px 0 0",
     color: C.textMuted,
-    fontSize: 13,
+    fontSize: 14,
+    lineHeight: 1.7,
+    maxWidth: 640,
   },
   statusBox: {
-    background: "linear-gradient(135deg,#7C3AED,#4F46E5)",
+    background: "linear-gradient(135deg,#4F46E5,#2563EB)",
     color: "#fff",
-    borderRadius: 18,
-    padding: "16px 24px",
-    minWidth: 120,
+    borderRadius: 20,
+    padding: "18px 26px",
+    minWidth: 130,
     textAlign: "center",
     display: "flex",
     flexDirection: "column",
     gap: 4,
-    boxShadow: "0 10px 28px rgba(124,58,237,0.28)",
+    boxShadow: "0 12px 28px rgba(79,70,229,0.28)",
   },
   card: {
     background: C.card,
     borderRadius: 20,
     padding: 24,
     border: `1px solid ${C.border}`,
-    boxShadow: "0 14px 42px rgba(124,58,237,0.08)",
+    boxShadow: "0 16px 40px rgba(17, 24, 39, 0.06)",
     marginBottom: 18,
   },
+  cardHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 16,
+    alignItems: "flex-start",
+    marginBottom: 14,
+  },
+  cardSubText: {
+    margin: "4px 0 0",
+    color: C.textMuted,
+    fontSize: 13,
+  },
   taskTitle: {
-    margin: "0 0 12px",
+    margin: 0,
     color: C.textH,
     fontSize: 22,
     fontWeight: 800,
+    letterSpacing: "-0.4px",
   },
   badges: {
     display: "flex",
     gap: 8,
     flexWrap: "wrap",
-    marginBottom: 16,
+    marginBottom: 18,
   },
   badge: {
     background: C.primarySoft,
     color: C.primaryDark,
-    padding: "6px 11px",
+    padding: "7px 11px",
     borderRadius: 999,
     fontSize: 12,
     fontWeight: 800,
@@ -462,57 +490,66 @@ const styles = {
     width: "100%",
     height: 12,
     borderRadius: 999,
-    background: "#EDE9FE",
+    background: "#E5E7EB",
     overflow: "hidden",
     marginBottom: 12,
   },
   progressFill: {
     height: "100%",
-    background: "linear-gradient(90deg,#7C3AED,#4F46E5)",
+    background: "linear-gradient(90deg,#4F46E5,#2563EB)",
     transition: "width .3s ease",
   },
   summaryRow: {
     display: "flex",
     justifyContent: "space-between",
-    marginBottom: 18,
+    marginBottom: 20,
     color: C.textMuted,
     fontSize: 13,
     fontWeight: 700,
   },
   sectionTitle: {
     fontSize: 16,
-    margin: "18px 0 10px",
+    margin: "20px 0 10px",
+    color: C.textH,
+    fontWeight: 800,
+  },
+  sectionTitleNoTop: {
+    fontSize: 16,
+    margin: "0 0 10px",
     color: C.textH,
     fontWeight: 800,
   },
   description: {
     color: C.textB,
     whiteSpace: "pre-wrap",
-    lineHeight: 1.7,
+    lineHeight: 1.75,
     fontSize: 14,
+    background: "#F9FAFB",
+    border: `1px solid ${C.border}`,
+    borderRadius: 16,
+    padding: 16,
   },
-  mainChecklist: {
-    margin: "10px 0 0 20px",
-    paddingLeft: 12,
-    lineHeight: 1.7,
-    fontSize: 14,
-    color: C.textB,
+  checklistBox: {
+    background: "#F9FAFB",
+    border: `1px solid ${C.border}`,
+    borderRadius: 16,
+    padding: 16,
   },
   mainChecklistItem: {
-    marginBottom: 10,
-    paddingLeft: 4,
+    marginBottom: 12,
   },
   subChecklist: {
-    margin: "8px 0 0 28px",
-    paddingLeft: 14,
-    lineHeight: 1.7,
-    fontSize: 14,
-  },
-  subChecklistItem: {
-    marginBottom: 6,
-    paddingLeft: 4,
+    margin: "10px 0 0 28px",
+    display: "grid",
+    gap: 8,
   },
   checkLine: {
+    display: "flex",
+    gap: 10,
+    alignItems: "flex-start",
+    cursor: "pointer",
+  },
+  subCheckLine: {
     display: "flex",
     gap: 10,
     alignItems: "flex-start",
@@ -523,7 +560,13 @@ const styles = {
     height: 18,
     cursor: "pointer",
     accentColor: C.primary,
-    marginTop: 3,
+    marginTop: 2,
+    flexShrink: 0,
+  },
+  checkText: {
+    color: C.textB,
+    fontSize: 14,
+    lineHeight: 1.6,
   },
   grid: {
     display: "grid",
@@ -540,7 +583,7 @@ const styles = {
   input: {
     width: "100%",
     padding: "12px 14px",
-    border: "1px solid #E5DEFF",
+    border: `1px solid ${C.border}`,
     borderRadius: 12,
     outline: "none",
     color: C.textH,
@@ -548,9 +591,9 @@ const styles = {
   },
   textarea: {
     width: "100%",
-    minHeight: 95,
+    minHeight: 100,
     padding: "12px 14px",
-    border: "1px solid #E5DEFF",
+    border: `1px solid ${C.border}`,
     borderRadius: 12,
     outline: "none",
     color: C.textH,
@@ -559,14 +602,14 @@ const styles = {
   },
   primaryBtn: {
     marginTop: 16,
-    background: "linear-gradient(135deg,#7C3AED,#4F46E5)",
+    background: "linear-gradient(135deg,#4F46E5,#2563EB)",
     color: "#fff",
     border: "none",
     borderRadius: 12,
     padding: "12px 20px",
     cursor: "pointer",
     fontWeight: 800,
-    boxShadow: "0 8px 20px rgba(124,58,237,.25)",
+    boxShadow: "0 10px 24px rgba(79,70,229,.26)",
   },
   secondaryBtn: {
     marginTop: 14,
@@ -586,24 +629,32 @@ const styles = {
   },
   fileName: {
     marginTop: 10,
-    padding: 10,
-    background: "#F5F3FF",
-    borderRadius: 10,
+    padding: 12,
+    background: C.primarySoft,
+    borderRadius: 12,
     color: C.primaryDark,
     fontSize: 13,
     fontWeight: 700,
   },
   updateBox: {
-    background: "#FBFAFF",
-    borderRadius: 14,
-    padding: 14,
+    background: "#F9FAFB",
+    borderRadius: 16,
+    padding: 16,
     marginTop: 10,
     border: `1px solid ${C.border}`,
   },
+  updateTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+    color: C.textH,
+    fontSize: 14,
+  },
   updateText: {
-    margin: "4px 0",
+    margin: "6px 0",
     color: C.textB,
     fontSize: 13,
+    lineHeight: 1.6,
   },
   smallText: {
     color: C.textLight,
@@ -616,20 +667,22 @@ const styles = {
   success: {
     background: C.successBg,
     color: C.success,
-    padding: 12,
-    borderRadius: 12,
+    padding: 13,
+    borderRadius: 14,
     marginBottom: 14,
     fontSize: 13,
     fontWeight: 700,
+    border: "1px solid #A7F3D0",
   },
   error: {
     background: C.errorBg,
     color: C.error,
-    padding: 12,
-    borderRadius: 12,
+    padding: 13,
+    borderRadius: 14,
     marginBottom: 14,
     fontSize: 13,
     fontWeight: 700,
+    border: "1px solid #FECACA",
   },
   errorText: {
     color: C.error,

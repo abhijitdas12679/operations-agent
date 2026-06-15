@@ -2,57 +2,69 @@ import React, { useEffect, useState } from 'react';
 import api from '../api';
 
 const C = {
-  pageBg: '#F8F7FF',
+  pageBg: '#F6F7FB',
   card: '#FFFFFF',
-  border: '#F0ECFF',
-  textH: '#1A1035',
-  textB: '#4B4569',
-  textMuted: '#8B7EC8',
-  textLight: '#B0A8D4',
-  primary: '#7C3AED',
-  primaryDark: '#5B21B6',
-  primarySoft: '#EDE9FE',
+  border: '#E6E8F0',
+  textH: '#111827',
+  textB: '#4B5563',
+  textMuted: '#6B7280',
+  textLight: '#9CA3AF',
+  primary: '#4F46E5',
+  primaryDark: '#3730A3',
+  primarySoft: '#EEF2FF',
+  successBg: '#ECFDF5',
+  successText: '#047857',
+  dangerBg: '#FEF2F2',
+  dangerText: '#B91C1C',
+  warningBg: '#FFFBEB',
+  warningText: '#92400E',
 };
 
-const FONT = "'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
+const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
 
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
   *, *::before, *::after {
     box-sizing: border-box;
   }
 
+  body {
+    margin: 0;
+    background: ${C.pageBg};
+  }
+
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
+    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   .smtp-card {
     background: ${C.card};
     border: 1px solid ${C.border};
-    border-radius: 18px;
-    box-shadow: 0 14px 42px rgba(124, 58, 237, 0.06);
-    animation: fadeUp 0.35s ease both;
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(17, 24, 39, 0.06);
+    animation: fadeUp 0.3s ease both;
   }
 
   .smtp-input,
   .smtp-select {
     width: 100%;
-    border: 1px solid #E5DEFF;
+    border: 1px solid ${C.border};
     background: #FFFFFF;
     border-radius: 12px;
-    padding: 11px 13px;
+    padding: 12px 14px;
     font-size: 13px;
     color: ${C.textH};
     outline: none;
     font-family: ${FONT};
+    transition: 0.18s ease;
   }
 
   .smtp-input:focus,
   .smtp-select:focus {
     border-color: ${C.primary};
-    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.10);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
   }
 
   .smtp-label {
@@ -66,7 +78,7 @@ const GLOBAL_CSS = `
   .smtp-btn {
     border: none;
     border-radius: 12px;
-    padding: 10px 15px;
+    padding: 11px 16px;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -74,13 +86,18 @@ const GLOBAL_CSS = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
+    gap: 8px;
+    transition: 0.18s ease;
+  }
+
+  .smtp-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
   }
 
   .smtp-btn-primary {
-    background: linear-gradient(135deg, #7C3AED, #4F46E5);
+    background: linear-gradient(135deg, #4F46E5, #2563EB);
     color: #fff;
-    box-shadow: 0 8px 22px rgba(124, 58, 237, 0.25);
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.26);
   }
 
   .smtp-btn-secondary {
@@ -89,67 +106,95 @@ const GLOBAL_CSS = `
   }
 
   .smtp-btn-danger {
-    background: #FEE2E2;
-    color: #B91C1C;
+    background: ${C.dangerBg};
+    color: ${C.dangerText};
+  }
+
+  .smtp-btn-light {
+    background: #F9FAFB;
+    color: ${C.textB};
+    border: 1px solid ${C.border};
   }
 
   .smtp-btn:disabled {
-    opacity: 0.65;
+    opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
   }
 
   .smtp-section-label {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     margin-bottom: 14px;
   }
 
   .smtp-section-label span:first-child {
-    width: 3px;
-    height: 16px;
-    border-radius: 2px;
-    background: linear-gradient(180deg,#7C3AED,#4F46E5);
+    width: 34px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #4F46E5, #2563EB);
   }
 
   .smtp-section-label span:last-child {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: ${C.textLight};
+    color: ${C.textMuted};
   }
 
-  .smtp-alert-success {
-    background: #ECFDF5;
-    color: #047857;
-    padding: 12px 14px;
-    border-radius: 12px;
+  .smtp-alert-success,
+  .smtp-alert-warning,
+  .smtp-alert-info {
+    padding: 13px 15px;
+    border-radius: 14px;
     margin-bottom: 16px;
     font-size: 13px;
     font-weight: 700;
+    border: 1px solid transparent;
+    line-height: 1.6;
+  }
+
+  .smtp-alert-success {
+    background: ${C.successBg};
+    color: ${C.successText};
+    border-color: #A7F3D0;
+  }
+
+  .smtp-alert-warning {
+    background: ${C.warningBg};
+    color: ${C.warningText};
+    border-color: #FDE68A;
+  }
+
+  .smtp-alert-info {
+    background: ${C.primarySoft};
+    color: ${C.primaryDark};
+    border-color: #C7D2FE;
   }
 
   .smtp-info-box {
-    background: #FBFAFF;
+    background: #FFFFFF;
     border: 1px solid ${C.border};
-    border-radius: 16px;
+    border-radius: 18px;
     padding: 18px;
+    margin-bottom: 16px;
   }
 
   .smtp-guide-list {
     margin: 0;
     padding-left: 18px;
-    color: ${C.textMuted};
+    color: ${C.textB};
     font-size: 13px;
     line-height: 1.85;
   }
 
   .smtp-guide-values {
-    margin-top: 12px;
-    padding: 12px;
-    background: #F8F7FF;
-    border-radius: 12px;
+    margin-top: 14px;
+    padding: 14px;
+    background: #F9FAFB;
+    border-radius: 14px;
     border: 1px solid ${C.border};
     font-size: 13px;
     color: ${C.textB};
@@ -158,19 +203,35 @@ const GLOBAL_CSS = `
 
   .smtp-mini-note {
     margin-top: 10px;
-    padding: 10px 12px;
-    background: #F5F3FF;
-    border: 1px solid #DDD6FE;
-    border-radius: 12px;
+    padding: 11px 13px;
+    background: ${C.primarySoft};
+    border: 1px solid #C7D2FE;
+    border-radius: 13px;
     color: ${C.primaryDark};
     font-size: 12px;
     line-height: 1.6;
     font-weight: 600;
   }
 
+  .smtp-port-note {
+    margin-top: 10px;
+    padding: 11px 13px;
+    background: ${C.warningBg};
+    border: 1px solid #FDE68A;
+    border-radius: 13px;
+    color: ${C.warningText};
+    font-size: 12px;
+    line-height: 1.6;
+    font-weight: 700;
+  }
+
   @media (max-width: 900px) {
     .smtp-grid {
       grid-template-columns: 1fr !important;
+    }
+
+    .smtp-page {
+      padding: 24px 18px 48px !important;
     }
   }
 `;
@@ -186,14 +247,14 @@ function SectionLabel({ children }) {
 
 function GuideBox({ title, children, style }) {
   return (
-    <div className="smtp-info-box" style={{ marginBottom: 14, ...style }}>
+    <div className="smtp-info-box" style={{ ...style }}>
       {title && (
         <h3
           style={{
-            fontSize: 14,
+            fontSize: 15,
             fontWeight: 800,
             color: C.textH,
-            marginBottom: 10,
+            margin: '0 0 10px',
           }}
         >
           {title}
@@ -314,29 +375,63 @@ export default function EmailSettings() {
       <style>{GLOBAL_CSS}</style>
 
       <div
+        className="smtp-page"
         style={{
           minHeight: '100vh',
           background: C.pageBg,
           fontFamily: FONT,
-          padding: '36px 40px 64px',
+          padding: '32px 36px 64px',
         }}
       >
-        <div style={{ marginBottom: 34 }}>
-          <h1
-            style={{
-              fontSize: 26,
-              fontWeight: 800,
-              color: C.textH,
-              letterSpacing: '-0.6px',
-              margin: 0,
-            }}
-          >
-            Email Sender Settings ⚙️
-          </h1>
+        <div
+          className="smtp-card"
+          style={{
+            padding: 28,
+            marginBottom: 24,
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 45%, #EEF2FF 100%)',
+          }}
+        >
+          <div>
+            <div
+              style={{
+                display: 'inline-flex',
+                padding: '7px 11px',
+                borderRadius: 999,
+                background: C.primarySoft,
+                color: C.primaryDark,
+                fontSize: 12,
+                fontWeight: 800,
+                marginBottom: 12,
+              }}
+            >
+              Email Delivery Setup
+            </div>
 
-          <p style={{ fontSize: 13, color: C.textMuted, marginTop: 4 }}>
-            Connect your Gmail, Outlook, or custom SMTP account to send emails.
-          </p>
+            <h1
+              style={{
+                fontSize: 30,
+                fontWeight: 800,
+                color: C.textH,
+                letterSpacing: '-0.8px',
+                margin: 0,
+              }}
+            >
+              Email Sender Settings
+            </h1>
+
+            <p
+              style={{
+                fontSize: 14,
+                color: C.textMuted,
+                margin: '8px 0 0',
+                maxWidth: 760,
+                lineHeight: 1.7,
+              }}
+            >
+              Connect your Gmail, Outlook, or custom SMTP account so the system can send emails
+              from your own verified email address.
+            </p>
+          </div>
         </div>
 
         <div
@@ -344,7 +439,7 @@ export default function EmailSettings() {
           style={{
             display: 'grid',
             gridTemplateColumns: 'minmax(320px, 520px) minmax(280px, 1fr)',
-            gap: 20,
+            gap: 22,
             alignItems: 'start',
           }}
         >
@@ -352,12 +447,13 @@ export default function EmailSettings() {
             <SectionLabel>SMTP Connection</SectionLabel>
 
             <div className="smtp-card" style={{ padding: 22 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 800, marginBottom: 8, color: C.textH }}>
+              <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 6px', color: C.textH }}>
                 Connect Your Email Account
               </h2>
 
-              <p style={{ color: C.textMuted, fontSize: 13, marginBottom: 18, lineHeight: 1.6 }}>
-                Your emails will be sent from your own email address. Select your email provider, enter your email, paste the app password, then save and test.
+              <p style={{ color: C.textMuted, fontSize: 13, margin: '0 0 18px', lineHeight: 1.7 }}>
+                Select your email provider, enter your email address, paste your app password, then
+                save and test the connection.
               </p>
 
               {connected && (
@@ -365,6 +461,11 @@ export default function EmailSettings() {
                   Connected sender: <b>{connected.smtp_email}</b>
                 </div>
               )}
+
+              <div className="smtp-alert-info">
+                Gmail and Outlook both commonly use SMTP port <b>587</b> for secure email sending.
+                So seeing the same port number for both providers is correct, not an error.
+              </div>
 
               <form onSubmit={submit}>
                 <div style={{ marginBottom: 15 }}>
@@ -399,6 +500,11 @@ export default function EmailSettings() {
                     onChange={(e) => setForm({ ...form, smtp_port: Number(e.target.value) })}
                     required
                   />
+
+                  <div className="smtp-port-note">
+                    Port 587 is the correct secure SMTP port for both Gmail and Outlook. It is used
+                    for sending email safely through TLS.
+                  </div>
                 </div>
 
                 <div style={{ marginBottom: 15 }}>
@@ -423,8 +529,10 @@ export default function EmailSettings() {
                     required
                     placeholder="Paste Gmail/Outlook app password"
                   />
+
                   <div className="smtp-mini-note">
-                    Do not enter your normal email password here. Use the special App Password generated from Gmail or Outlook security settings.
+                    Do not enter your normal email password here. Use the special App Password
+                    generated from Gmail or Outlook security settings.
                   </div>
                 </div>
 
@@ -463,16 +571,16 @@ export default function EmailSettings() {
             <SectionLabel>Setup Guide</SectionLabel>
 
             <div className="smtp-card" style={{ padding: 22 }}>
-              <GuideBox title="📧 Gmail Setup">
+              <GuideBox title="Gmail Setup">
                 <ol className="smtp-guide-list">
                   <li>Open your Gmail account in the browser.</li>
                   <li>Click your profile icon and open <b>Manage your Google Account</b>.</li>
                   <li>Go to <b>Security</b>.</li>
-                  <li>Turn on <b>2-Step Verification</b>. Google may ask you to verify your phone number.</li>
-                  <li>After 2-Step Verification is enabled, search for <b>App Passwords</b>.</li>
-                  <li>Create a new app password. You can name it <b>Operations Agent</b>.</li>
-                  <li>Google will show a 16-character password. Copy it.</li>
-                  <li>Paste that password into the <b>App Password</b> field on this page.</li>
+                  <li>Turn on <b>2-Step Verification</b>.</li>
+                  <li>After that, search for <b>App Passwords</b>.</li>
+                  <li>Create a new app password named <b>Operations Agent</b>.</li>
+                  <li>Copy the 16-character password shown by Google.</li>
+                  <li>Paste it into the <b>App Password</b> field on this page.</li>
                 </ol>
 
                 <div className="smtp-guide-values">
@@ -484,11 +592,11 @@ export default function EmailSettings() {
                 </div>
               </GuideBox>
 
-              <GuideBox title="📨 Outlook Setup">
+              <GuideBox title="Outlook Setup">
                 <ol className="smtp-guide-list">
                   <li>Open your Outlook or Microsoft account in the browser.</li>
                   <li>Go to your account <b>Security</b> settings.</li>
-                  <li>Turn on <b>Two-step verification</b> if Microsoft asks for it.</li>
+                  <li>Turn on <b>Two-step verification</b> if required.</li>
                   <li>Create an <b>App Password</b> from Microsoft security settings.</li>
                   <li>Copy the generated app password.</li>
                   <li>Paste it into the <b>App Password</b> field on this page.</li>
@@ -503,13 +611,13 @@ export default function EmailSettings() {
                 </div>
               </GuideBox>
 
-              <GuideBox title="⚠️ Important Notes" style={{ marginBottom: 0 }}>
+              <GuideBox title="Important Notes" style={{ marginBottom: 0 }}>
                 <ul className="smtp-guide-list">
+                  <li>Port <b>587</b> is correct for both Gmail and Outlook SMTP sending.</li>
                   <li>Your SMTP email should match your registered account email.</li>
                   <li>Do not use your normal Gmail or Outlook password.</li>
                   <li>Always use the App Password generated from your email security settings.</li>
                   <li>After saving, click <b>Send Test Email</b> to confirm everything is working.</li>
-                  <li>If test email is successful, your email account is connected correctly.</li>
                 </ul>
               </GuideBox>
             </div>

@@ -3,60 +3,73 @@ import api from '../api';
 import StatusBadge from '../components/email/StatusBadge';
 
 const C = {
-  pageBg: '#F8F7FF',
+  pageBg: '#F6F7FB',
   card: '#FFFFFF',
-  border: '#F0ECFF',
-  textH: '#1A1035',
-  textB: '#4B4569',
-  textMuted: '#8B7EC8',
-  textLight: '#B0A8D4',
-  primary: '#7C3AED',
-  primaryDark: '#5B21B6',
-  primarySoft: '#EDE9FE',
+  border: '#E6E8F0',
+  textH: '#111827',
+  textB: '#4B5563',
+  textMuted: '#6B7280',
+  textLight: '#9CA3AF',
+  primary: '#4F46E5',
+  primaryDark: '#3730A3',
+  primarySoft: '#EEF2FF',
+  successBg: '#ECFDF5',
+  successText: '#047857',
+  dangerBg: '#FEF2F2',
+  dangerText: '#B91C1C',
 };
 
-const FONT = "'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
+const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
 
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
   *, *::before, *::after {
     box-sizing: border-box;
   }
 
+  body {
+    margin: 0;
+    background: ${C.pageBg};
+  }
+
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
+    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes emailSpin {
+    to { transform: rotate(360deg); }
   }
 
   .email-auto-card {
     background: ${C.card};
     border: 1px solid ${C.border};
-    border-radius: 18px;
-    box-shadow: 0 14px 42px rgba(124, 58, 237, 0.06);
-    animation: fadeUp 0.35s ease both;
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(17, 24, 39, 0.06);
+    animation: fadeUp 0.3s ease both;
   }
 
   .email-auto-input,
   .email-auto-textarea,
   .email-auto-select {
     width: 100%;
-    border: 1px solid #E5DEFF;
+    border: 1px solid ${C.border};
     background: #FFFFFF;
     border-radius: 12px;
-    padding: 11px 13px;
+    padding: 12px 14px;
     font-size: 13px;
     color: ${C.textH};
     outline: none;
     font-family: ${FONT};
-    transition: border 0.16s ease, box-shadow 0.16s ease;
+    transition: 0.18s ease;
   }
 
   .email-auto-input:focus,
   .email-auto-textarea:focus,
   .email-auto-select:focus {
     border-color: ${C.primary};
-    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.10);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
   }
 
   .email-auto-label {
@@ -70,7 +83,7 @@ const GLOBAL_CSS = `
   .email-auto-btn {
     border: none;
     border-radius: 12px;
-    padding: 10px 15px;
+    padding: 11px 16px;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -78,18 +91,18 @@ const GLOBAL_CSS = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    gap: 8px;
+    transition: 0.18s ease;
   }
 
-  .email-auto-btn:hover {
+  .email-auto-btn:hover:not(:disabled) {
     transform: translateY(-1px);
   }
 
   .email-auto-btn-primary {
-    background: linear-gradient(135deg, #7C3AED, #4F46E5);
+    background: linear-gradient(135deg, #4F46E5, #2563EB);
     color: #fff;
-    box-shadow: 0 8px 22px rgba(124, 58, 237, 0.25);
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.26);
   }
 
   .email-auto-btn-secondary {
@@ -97,8 +110,14 @@ const GLOBAL_CSS = `
     color: ${C.primaryDark};
   }
 
+  .email-auto-btn-light {
+    background: #F9FAFB;
+    color: ${C.textB};
+    border: 1px solid ${C.border};
+  }
+
   .email-auto-btn:disabled {
-    opacity: 0.65;
+    opacity: 0.6;
     cursor: not-allowed;
     transform: none;
   }
@@ -106,51 +125,41 @@ const GLOBAL_CSS = `
   .email-auto-section-label {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     margin-bottom: 14px;
   }
 
   .email-auto-section-label span:first-child {
-    width: 3px;
-    height: 16px;
-    border-radius: 2px;
-    background: linear-gradient(180deg,#7C3AED,#4F46E5);
+    width: 34px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #4F46E5, #2563EB);
   }
 
   .email-auto-section-label span:last-child {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: ${C.textLight};
-  }
-
-  .email-preview-box {
-    background: #FFFFFF;
-    border: 1px solid ${C.border};
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  .email-preview-top {
-    background: linear-gradient(135deg, #F5F3FF, #EEF2FF);
-    border-bottom: 1px solid ${C.border};
-    padding: 18px 20px;
+    color: ${C.textMuted};
   }
 
   .email-recipient-box {
-    background: #FBFAFF;
+    background: #F9FAFB;
     border: 1px solid ${C.border};
-    border-radius: 14px;
-    padding: 14px;
+    border-radius: 16px;
+    padding: 16px;
     margin-bottom: 16px;
   }
 
   .email-empty-state {
-    padding: 70px 20px;
+    padding: 80px 20px;
     text-align: center;
     color: ${C.textLight};
     font-size: 13px;
+    background: #F9FAFB;
+    border-radius: 18px;
+    border: 1px dashed ${C.border};
   }
 
   .email-actions {
@@ -160,9 +169,22 @@ const GLOBAL_CSS = `
     margin-top: 16px;
   }
 
+  .email-spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid rgba(255,255,255,0.45);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: emailSpin 0.75s linear infinite;
+  }
+
   @media (max-width: 950px) {
     .email-auto-grid {
       grid-template-columns: 1fr !important;
+    }
+
+    .email-auto-page {
+      padding: 24px 18px 48px !important;
     }
   }
 `;
@@ -238,7 +260,7 @@ export default function EmailAutomation() {
     });
 
     setEmail(res.data);
-    alert('Saved');
+    alert('Saved successfully');
   };
 
   const regenerate = async () => {
@@ -259,7 +281,7 @@ export default function EmailAutomation() {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
 
-    alert('Attachment uploaded');
+    alert('Attachment uploaded successfully');
   };
 
   const send = async () => {
@@ -281,29 +303,115 @@ export default function EmailAutomation() {
       <style>{GLOBAL_CSS}</style>
 
       <div
+        className="email-auto-page"
         style={{
           minHeight: '100vh',
           background: C.pageBg,
           fontFamily: FONT,
-          padding: '36px 40px 64px',
+          padding: '32px 36px 64px',
         }}
       >
-        <div style={{ marginBottom: 34 }}>
-          <h1
+        <div
+          className="email-auto-card"
+          style={{
+            padding: 28,
+            marginBottom: 24,
+            background:
+              'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 45%, #EEF2FF 100%)',
+          }}
+        >
+          <div
             style={{
-              fontSize: 26,
-              fontWeight: 800,
-              color: C.textH,
-              letterSpacing: '-0.6px',
-              margin: 0,
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: 20,
+              alignItems: 'center',
+              flexWrap: 'wrap',
             }}
           >
-            AI Email Automation ✉️
-          </h1>
+            <div>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  padding: '7px 11px',
+                  borderRadius: 999,
+                  background: C.primarySoft,
+                  color: C.primaryDark,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  marginBottom: 12,
+                }}
+              >
+                AI Email Automation
+              </div>
 
-          <p style={{ fontSize: 13, color: C.textMuted, marginTop: 4 }}>
-            Generate, edit, attach files, schedule, and send professional emails
-          </p>
+              <h1
+                style={{
+                  fontSize: 30,
+                  fontWeight: 800,
+                  color: C.textH,
+                  letterSpacing: '-0.8px',
+                  margin: 0,
+                }}
+              >
+                Single Email Generator
+              </h1>
+
+              <p
+                style={{
+                  fontSize: 14,
+                  color: C.textMuted,
+                  margin: '8px 0 0',
+                  maxWidth: 680,
+                }}
+              >
+                Generate professional emails, edit the content, upload attachments, schedule
+                delivery, and send from one clean workspace.
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, minmax(90px, 1fr))',
+                gap: 12,
+                minWidth: 320,
+              }}
+            >
+              <div className="email-auto-card" style={{ padding: 16 }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.textH }}>
+                  {templates.length}
+                </div>
+                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
+                  Templates
+                </div>
+              </div>
+
+              <div className="email-auto-card" style={{ padding: 16 }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.primary }}>
+                  {email ? 1 : 0}
+                </div>
+                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
+                  Generated
+                </div>
+              </div>
+
+              <div className="email-auto-card" style={{ padding: 16 }}>
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 800,
+                    color: email?.status === 'sent' ? C.successText : C.textH,
+                  }}
+                >
+                  {email?.status === 'sent' ? 'Sent' : 'Draft'}
+                </div>
+                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
+                  Status
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div
@@ -311,7 +419,7 @@ export default function EmailAutomation() {
           style={{
             display: 'grid',
             gridTemplateColumns: 'minmax(320px, 420px) minmax(0, 1fr)',
-            gap: 20,
+            gap: 22,
             alignItems: 'start',
           }}
         >
@@ -319,16 +427,13 @@ export default function EmailAutomation() {
             <SectionLabel>Create Email</SectionLabel>
 
             <div className="email-auto-card" style={{ padding: 22 }}>
-              <h2
-                style={{
-                  fontSize: 16,
-                  fontWeight: 800,
-                  marginBottom: 18,
-                  color: C.textH,
-                }}
-              >
+              <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 4px', color: C.textH }}>
                 Generate Single Email
               </h2>
+
+              <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 18px' }}>
+                Enter recipient details and context to create a polished email.
+              </p>
 
               <form onSubmit={generate}>
                 <div style={{ marginBottom: 15 }}>
@@ -410,7 +515,7 @@ export default function EmailAutomation() {
                     value={form.context}
                     onChange={change}
                     required
-                    style={{ minHeight: 135, resize: 'vertical' }}
+                    style={{ minHeight: 145, resize: 'vertical' }}
                     placeholder="Write the email context. AI will convert it into a professional message."
                   />
                 </div>
@@ -431,7 +536,13 @@ export default function EmailAutomation() {
                   disabled={loading}
                   style={{ width: '100%' }}
                 >
-                  {loading ? 'Generating...' : '🤖 Generate Preview'}
+                  {loading ? (
+                    <>
+                      <span className="email-spinner" /> Generating...
+                    </>
+                  ) : (
+                    'Generate Preview'
+                  )}
                 </button>
               </form>
             </div>
@@ -440,21 +551,31 @@ export default function EmailAutomation() {
           <div>
             <SectionLabel>Email Preview</SectionLabel>
 
-            <div className="email-auto-card" style={{ padding: 22, minHeight: 620 }}>
-              <h2
+            <div className="email-auto-card" style={{ padding: 22, minHeight: 640 }}>
+              <div
                 style={{
-                  fontSize: 16,
-                  fontWeight: 800,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                   marginBottom: 18,
-                  color: C.textH,
+                  gap: 12,
+                  flexWrap: 'wrap',
                 }}
               >
-                Preview, Edit & Send
-              </h2>
+                <div>
+                  <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0, color: C.textH }}>
+                    Preview, Edit & Send
+                  </h2>
+
+                  <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>
+                    Review and refine the generated email before sending.
+                  </p>
+                </div>
+              </div>
 
               {!email ? (
                 <div className="email-empty-state">
-                  Generate an email to preview, edit, regenerate and send.
+                  Generate an email to preview, edit, regenerate, upload attachments, and send.
                 </div>
               ) : (
                 <>
@@ -469,11 +590,21 @@ export default function EmailAutomation() {
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: 13, color: C.textB, marginBottom: 4 }}>
+                        <div style={{ fontSize: 13, color: C.textB, marginBottom: 5 }}>
                           <b>{email.recipient_name}</b> — {email.recipient_email}
                         </div>
-                        <div style={{ fontSize: 12, color: C.textMuted }}>
-                          Status: <StatusBadge status={email.status} />
+
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            fontSize: 12,
+                            color: C.textMuted,
+                          }}
+                        >
+                          <span>Status:</span>
+                          <StatusBadge status={email.status} />
                         </div>
                       </div>
                     </div>
@@ -497,7 +628,7 @@ export default function EmailAutomation() {
                     <label className="email-auto-label">Generated Content</label>
                     <textarea
                       className="email-auto-textarea"
-                      style={{ minHeight: 330, resize: 'vertical' }}
+                      style={{ minHeight: 350, resize: 'vertical', lineHeight: 1.75 }}
                       value={email.generated_email || ''}
                       onChange={(e) =>
                         setEmail({
@@ -516,6 +647,10 @@ export default function EmailAutomation() {
                       accept=".pdf,.docx,.xlsx,.pptx"
                       onChange={(e) => setAttachment(e.target.files[0])}
                     />
+
+                    <p style={{ fontSize: 12, color: C.textMuted, margin: '7px 0 0' }}>
+                      Supported files: PDF, DOCX, XLSX, PPTX
+                    </p>
                   </div>
 
                   <div className="email-actions">
@@ -524,7 +659,7 @@ export default function EmailAutomation() {
                       className="email-auto-btn email-auto-btn-secondary"
                       onClick={uploadAttachment}
                     >
-                      📎 Upload Attachment
+                      Upload Attachment
                     </button>
 
                     <button
@@ -532,15 +667,15 @@ export default function EmailAutomation() {
                       className="email-auto-btn email-auto-btn-secondary"
                       onClick={saveEdit}
                     >
-                      💾 Save Edit
+                      Save Edit
                     </button>
 
                     <button
                       type="button"
-                      className="email-auto-btn email-auto-btn-secondary"
+                      className="email-auto-btn email-auto-btn-light"
                       onClick={regenerate}
                     >
-                      🔄 Regenerate
+                      Regenerate
                     </button>
 
                     <button
@@ -548,7 +683,7 @@ export default function EmailAutomation() {
                       className="email-auto-btn email-auto-btn-primary"
                       onClick={send}
                     >
-                      📤 Generate & Send
+                      Send Email
                     </button>
                   </div>
                 </>

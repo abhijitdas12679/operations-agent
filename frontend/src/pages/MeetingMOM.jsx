@@ -4,58 +4,71 @@ import api from '../api';
 import { forceDownload } from '../utils/download';
 
 const C = {
-  pageBg: '#F8F7FF',
+  pageBg: '#F6F7FB',
   card: '#FFFFFF',
-  border: '#F0ECFF',
-  textH: '#1A1035',
-  textB: '#4B4569',
-  textMuted: '#8B7EC8',
-  textLight: '#B0A8D4',
-  primary: '#7C3AED',
-  primaryDark: '#5B21B6',
-  primarySoft: '#EDE9FE',
+  border: '#E6E8F0',
+  textH: '#111827',
+  textB: '#4B5563',
+  textMuted: '#6B7280',
+  textLight: '#9CA3AF',
+  primary: '#4F46E5',
+  primaryDark: '#3730A3',
+  primarySoft: '#EEF2FF',
+  successBg: '#ECFDF5',
+  successText: '#047857',
+  dangerBg: '#FEF2F2',
+  dangerText: '#B91C1C',
 };
 
-const FONT = "'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
+const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
 
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
   *, *::before, *::after {
     box-sizing: border-box;
   }
 
+  body {
+    margin: 0;
+    background: ${C.pageBg};
+  }
+
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
+    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes momSpin {
+    to { transform: rotate(360deg); }
   }
 
   .mom-card {
     background: ${C.card};
     border: 1px solid ${C.border};
-    border-radius: 18px;
-    box-shadow: 0 14px 42px rgba(124, 58, 237, 0.06);
-    animation: fadeUp 0.35s ease both;
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(17, 24, 39, 0.06);
+    animation: fadeUp 0.3s ease both;
   }
 
   .mom-input,
   .mom-textarea {
     width: 100%;
-    border: 1px solid #E5DEFF;
+    border: 1px solid ${C.border};
     background: #FFFFFF;
     border-radius: 12px;
-    padding: 11px 13px;
+    padding: 12px 14px;
     font-size: 13px;
     color: ${C.textH};
     outline: none;
     font-family: ${FONT};
-    transition: border 0.16s ease, box-shadow 0.16s ease;
+    transition: 0.18s ease;
   }
 
   .mom-input:focus,
   .mom-textarea:focus {
     border-color: ${C.primary};
-    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.10);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
   }
 
   .mom-label {
@@ -69,7 +82,7 @@ const GLOBAL_CSS = `
   .mom-btn {
     border: none;
     border-radius: 12px;
-    padding: 10px 15px;
+    padding: 11px 16px;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -77,18 +90,18 @@ const GLOBAL_CSS = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    gap: 8px;
+    transition: 0.18s ease;
   }
 
-  .mom-btn:hover {
+  .mom-btn:hover:not(:disabled) {
     transform: translateY(-1px);
   }
 
   .mom-btn-primary {
-    background: linear-gradient(135deg, #7C3AED, #4F46E5);
+    background: linear-gradient(135deg, #4F46E5, #2563EB);
     color: #fff;
-    box-shadow: 0 8px 22px rgba(124, 58, 237, 0.25);
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.26);
   }
 
   .mom-btn-secondary {
@@ -96,13 +109,14 @@ const GLOBAL_CSS = `
     color: ${C.primaryDark};
   }
 
-  .mom-btn-danger {
-    background: #FEE2E2;
-    color: #B91C1C;
+  .mom-btn-light {
+    background: #F9FAFB;
+    color: ${C.textB};
+    border: 1px solid ${C.border};
   }
 
   .mom-btn:disabled {
-    opacity: 0.65;
+    opacity: 0.6;
     cursor: not-allowed;
     transform: none;
   }
@@ -110,98 +124,113 @@ const GLOBAL_CSS = `
   .mom-section-label {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     margin-bottom: 14px;
   }
 
   .mom-section-label span:first-child {
-    width: 3px;
-    height: 16px;
-    border-radius: 2px;
-    background: linear-gradient(180deg,#7C3AED,#4F46E5);
+    width: 34px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #4F46E5, #2563EB);
   }
 
   .mom-section-label span:last-child {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: ${C.textLight};
+    color: ${C.textMuted};
   }
 
   .mom-report {
     background: #FFFFFF;
     border: 1px solid ${C.border};
-    border-radius: 16px;
+    border-radius: 18px;
     overflow: hidden;
   }
 
   .mom-report-top {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 18px;
-    background: linear-gradient(135deg, #F5F3FF, #EEF2FF);
+    gap: 14px;
+    padding: 20px;
+    background: linear-gradient(135deg, #F8FAFC, #EEF2FF);
     border-bottom: 1px solid ${C.border};
   }
 
   .mom-report-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 13px;
-    background: #D1FAE5;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #4F46E5, #2563EB);
+    color: #FFFFFF;
     display: grid;
     place-items: center;
-    font-size: 21px;
+    font-size: 16px;
+    font-weight: 900;
+    flex-shrink: 0;
   }
 
   .mom-report-body {
-    padding: 18px;
+    padding: 20px;
   }
 
   .mom-report-body h3 {
     color: ${C.textH};
     font-size: 15px;
-    margin: 14px 0 8px;
+    margin: 16px 0 8px;
   }
 
   .mom-report-body p {
     color: ${C.textB};
     font-size: 13px;
-    line-height: 1.7;
+    line-height: 1.75;
     margin: 8px 0;
   }
 
   .mom-report-body li {
     color: ${C.textB};
     font-size: 13px;
-    line-height: 1.7;
+    line-height: 1.75;
     margin-left: 18px;
   }
 
   .mom-history-item {
-    padding: 13px 14px;
-    border-radius: 14px;
+    padding: 14px;
+    border-radius: 16px;
     cursor: pointer;
     margin-bottom: 10px;
     border: 1px solid ${C.border};
-    background: #FBFAFF;
-    transition: background 0.15s ease, transform 0.15s ease;
+    background: #FFFFFF;
+    transition: 0.18s ease;
   }
 
   .mom-history-item:hover {
-    background: #F3F0FF;
+    background: #F8FAFC;
     transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(17, 24, 39, 0.05);
   }
 
   .mom-alert {
-    background: #FEE2E2;
-    color: #991B1B;
-    padding: 11px 13px;
-    border-radius: 12px;
-    margin-bottom: 14px;
+    background: ${C.dangerBg};
+    color: ${C.dangerText};
+    padding: 13px 15px;
+    border-radius: 14px;
+    margin-bottom: 16px;
     font-size: 13px;
     font-weight: 700;
+    border: 1px solid #FECACA;
+  }
+
+  .mom-empty-state {
+    padding: 46px 16px;
+    text-align: center;
+    color: ${C.textLight};
+    font-size: 13px;
+    background: #F9FAFB;
+    border-radius: 18px;
+    border: 1px dashed ${C.border};
   }
 
   .mom-spinner {
@@ -213,8 +242,23 @@ const GLOBAL_CSS = `
     animation: momSpin 0.75s linear infinite;
   }
 
-  @keyframes momSpin {
-    to { transform: rotate(360deg); }
+  .mom-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .mom-scroll::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 999px;
+  }
+
+  @media (max-width: 950px) {
+    .mom-grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    .mom-page {
+      padding: 24px 18px 48px !important;
+    }
   }
 `;
 
@@ -256,25 +300,14 @@ function ProfessionalMOMView({ mom, title }) {
   return (
     <div className="mom-report">
       <div className="mom-report-top">
-        <div className="mom-report-icon">📝</div>
+        <div className="mom-report-icon">MOM</div>
+
         <div>
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 17,
-              fontWeight: 800,
-              color: C.textH,
-            }}
-          >
+          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.textH }}>
             Minutes of Meeting
           </h2>
-          <p
-            style={{
-              margin: '3px 0 0',
-              fontSize: 12,
-              color: C.textMuted,
-            }}
-          >
+
+          <p style={{ margin: '4px 0 0', fontSize: 12, color: C.textMuted }}>
             {title || 'Generated by Operations Agent'}
           </p>
         </div>
@@ -313,7 +346,7 @@ function ExportButtons({ id }) {
       style={{
         display: 'flex',
         gap: 10,
-        marginTop: 14,
+        marginTop: 16,
         flexWrap: 'wrap',
       }}
     >
@@ -325,7 +358,7 @@ function ExportButtons({ id }) {
         }}
         disabled={!!exporting}
       >
-        {exporting === 'docx' ? 'Exporting...' : '📄 Export DOCX'}
+        {exporting === 'docx' ? 'Exporting...' : 'Export DOCX'}
       </button>
 
       <button
@@ -336,7 +369,7 @@ function ExportButtons({ id }) {
         }}
         disabled={!!exporting}
       >
-        {exporting === 'pdf' ? 'Exporting...' : '📕 Export PDF'}
+        {exporting === 'pdf' ? 'Exporting...' : 'Export PDF'}
       </button>
 
       <button
@@ -347,7 +380,7 @@ function ExportButtons({ id }) {
         }}
         disabled={!id}
       >
-        📤 Send MOM
+        Send MOM
       </button>
     </div>
   );
@@ -407,35 +440,117 @@ export default function MeetingMOM() {
       <style>{GLOBAL_CSS}</style>
 
       <div
+        className="mom-page"
         style={{
           minHeight: '100vh',
           background: C.pageBg,
           fontFamily: FONT,
-          padding: '36px 40px 64px',
+          padding: '32px 36px 64px',
         }}
       >
-        <div style={{ marginBottom: 34 }}>
-          <h1
+        <div
+          className="mom-card"
+          style={{
+            padding: 28,
+            marginBottom: 24,
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 45%, #EEF2FF 100%)',
+          }}
+        >
+          <div
             style={{
-              fontSize: 26,
-              fontWeight: 800,
-              color: C.textH,
-              letterSpacing: '-0.6px',
-              margin: 0,
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: 20,
+              alignItems: 'center',
+              flexWrap: 'wrap',
             }}
           >
-            Meeting MOM Generator 📝
-          </h1>
-          <p style={{ fontSize: 13, color: C.textMuted, marginTop: 4 }}>
-            Convert rough meeting notes into clean, professional minutes of meeting
-          </p>
+            <div>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  padding: '7px 11px',
+                  borderRadius: 999,
+                  background: C.primarySoft,
+                  color: C.primaryDark,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  marginBottom: 12,
+                }}
+              >
+                Meeting Documentation
+              </div>
+
+              <h1
+                style={{
+                  fontSize: 30,
+                  fontWeight: 800,
+                  color: C.textH,
+                  letterSpacing: '-0.8px',
+                  margin: 0,
+                }}
+              >
+                Meeting MOM Generator
+              </h1>
+
+              <p
+                style={{
+                  fontSize: 14,
+                  color: C.textMuted,
+                  margin: '8px 0 0',
+                  maxWidth: 680,
+                  lineHeight: 1.7,
+                }}
+              >
+                Convert rough meeting notes into structured minutes, export them as PDF or DOCX,
+                and share clean MOM documents with stakeholders.
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, minmax(90px, 1fr))',
+                gap: 12,
+                minWidth: 320,
+              }}
+            >
+              <div className="mom-card" style={{ padding: 16 }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.textH }}>
+                  {history.length}
+                </div>
+                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
+                  MOMs
+                </div>
+              </div>
+
+              <div className="mom-card" style={{ padding: 16 }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.primary }}>
+                  {result ? 1 : 0}
+                </div>
+                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
+                  Generated
+                </div>
+              </div>
+
+              <div className="mom-card" style={{ padding: 16 }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.successText }}>
+                  Ready
+                </div>
+                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
+                  Export
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div
+          className="mom-grid"
           style={{
             display: 'grid',
             gridTemplateColumns: 'minmax(320px, 420px) minmax(0, 1fr)',
-            gap: 20,
+            gap: 22,
             alignItems: 'start',
           }}
         >
@@ -443,16 +558,13 @@ export default function MeetingMOM() {
             <SectionLabel>Create MOM</SectionLabel>
 
             <div className="mom-card" style={{ padding: 22 }}>
-              <h2
-                style={{
-                  fontSize: 16,
-                  fontWeight: 800,
-                  marginBottom: 18,
-                  color: C.textH,
-                }}
-              >
+              <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 4px', color: C.textH }}>
                 Generate Minutes of Meeting
               </h2>
+
+              <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 18px' }}>
+                Add meeting details and raw notes to generate a professional MOM.
+              </p>
 
               {error && <div className="mom-alert">{error}</div>}
 
@@ -489,12 +601,12 @@ export default function MeetingMOM() {
                     value={form.raw_notes}
                     onChange={handle}
                     required
-                    style={{ minHeight: 175, resize: 'vertical' }}
+                    style={{ minHeight: 185, resize: 'vertical' }}
                     placeholder={
                       'Paste your raw notes here...\n' +
-                      '- Discussed Q4 roadmap\n' +
-                      '- John to deliver feature X by Friday\n' +
-                      '- Budget approved for $5k tools'
+                      '- Discussed roadmap and deadlines\n' +
+                      '- Assigned responsibilities\n' +
+                      '- Finalized next action points'
                     }
                   />
                 </div>
@@ -510,7 +622,7 @@ export default function MeetingMOM() {
                       <span className="mom-spinner" /> Generating MOM...
                     </>
                   ) : (
-                    '🤖 Generate MOM'
+                    'Generate MOM'
                   )}
                 </button>
               </form>
@@ -532,30 +644,34 @@ export default function MeetingMOM() {
             <SectionLabel>History</SectionLabel>
 
             <div className="mom-card" style={{ padding: 22 }}>
-              <h2
+              <div
                 style={{
-                  fontSize: 16,
-                  fontWeight: 800,
-                  marginBottom: 14,
-                  color: C.textH,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 16,
+                  gap: 12,
                 }}
               >
-                Recent MOMs
-              </h2>
+                <div>
+                  <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0, color: C.textH }}>
+                    Recent MOMs
+                  </h2>
+
+                  <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>
+                    View, export, or send previously generated MOMs.
+                  </p>
+                </div>
+
+                <button className="mom-btn mom-btn-light" type="button" onClick={fetchHistory}>
+                  Refresh
+                </button>
+              </div>
 
               {history.length === 0 ? (
-                <div
-                  style={{
-                    padding: '30px 0',
-                    textAlign: 'center',
-                    color: C.textLight,
-                    fontSize: 13,
-                  }}
-                >
-                  No MOMs generated yet
-                </div>
+                <div className="mom-empty-state">No MOMs generated yet</div>
               ) : (
-                <div style={{ maxHeight: 520, overflowY: 'auto', paddingRight: 4 }}>
+                <div className="mom-scroll" style={{ maxHeight: 560, overflowY: 'auto', paddingRight: 4 }}>
                   {history.map((h) => (
                     <div
                       key={h.id}
@@ -581,10 +697,10 @@ export default function MeetingMOM() {
                               textOverflow: 'ellipsis',
                             }}
                           >
-                            {h.meeting_title}
+                            {h.meeting_title || 'Minutes of Meeting'}
                           </div>
 
-                          <div style={{ fontSize: 11, color: C.textLight, marginTop: 3 }}>
+                          <div style={{ fontSize: 11, color: C.textLight, marginTop: 4 }}>
                             {h.created_at ? new Date(h.created_at).toLocaleString() : ''}
                           </div>
                         </div>
@@ -593,9 +709,9 @@ export default function MeetingMOM() {
                           style={{
                             fontSize: 11,
                             fontWeight: 800,
-                            color: C.primaryDark,
-                            background: C.primarySoft,
-                            padding: '5px 9px',
+                            color: selected?.id === h.id ? C.successText : C.primaryDark,
+                            background: selected?.id === h.id ? C.successBg : C.primarySoft,
+                            padding: '6px 10px',
                             borderRadius: 999,
                             flexShrink: 0,
                           }}
@@ -605,7 +721,7 @@ export default function MeetingMOM() {
                       </div>
 
                       {selected?.id === h.id && (
-                        <div style={{ marginTop: 14 }}>
+                        <div style={{ marginTop: 16 }}>
                           <ProfessionalMOMView mom={h.generated_mom} title={h.meeting_title} />
                           <ExportButtons id={h.id} />
                         </div>

@@ -2,59 +2,73 @@ import React, { useEffect, useState } from 'react';
 import api from '../api';
 
 const C = {
-  pageBg: '#F8F7FF',
+  pageBg: '#F6F7FB',
   card: '#FFFFFF',
-  border: '#F0ECFF',
-  textH: '#1A1035',
-  textB: '#4B4569',
-  textMuted: '#8B7EC8',
-  textLight: '#B0A8D4',
-  primary: '#7C3AED',
-  primaryDark: '#5B21B6',
-  primarySoft: '#EDE9FE',
+  border: '#E6E8F0',
+  textH: '#111827',
+  textB: '#4B5563',
+  textMuted: '#6B7280',
+  textLight: '#9CA3AF',
+  primary: '#4F46E5',
+  primaryDark: '#3730A3',
+  primarySoft: '#EEF2FF',
+  successBg: '#ECFDF5',
+  successText: '#047857',
+  dangerBg: '#FEF2F2',
+  dangerText: '#B91C1C',
 };
 
-const FONT = "'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
+const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
 
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
   *, *::before, *::after {
     box-sizing: border-box;
   }
 
+  body {
+    margin: 0;
+    background: ${C.pageBg};
+  }
+
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
+    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes emailSpin {
+    to { transform: rotate(360deg); }
   }
 
   .email-card {
     background: ${C.card};
     border: 1px solid ${C.border};
-    border-radius: 18px;
-    box-shadow: 0 14px 42px rgba(124, 58, 237, 0.06);
-    animation: fadeUp 0.35s ease both;
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(17, 24, 39, 0.06);
+    animation: fadeUp 0.3s ease both;
   }
 
   .email-input,
   .email-textarea,
   .email-select {
     width: 100%;
-    border: 1px solid #E5DEFF;
+    border: 1px solid ${C.border};
     background: #FFFFFF;
     border-radius: 12px;
-    padding: 11px 13px;
+    padding: 12px 14px;
     font-size: 13px;
     color: ${C.textH};
     outline: none;
     font-family: ${FONT};
+    transition: 0.18s ease;
   }
 
   .email-input:focus,
   .email-textarea:focus,
   .email-select:focus {
     border-color: ${C.primary};
-    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.10);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
   }
 
   .email-label {
@@ -68,7 +82,7 @@ const GLOBAL_CSS = `
   .email-btn {
     border: none;
     border-radius: 12px;
-    padding: 10px 15px;
+    padding: 11px 16px;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -76,13 +90,18 @@ const GLOBAL_CSS = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
+    gap: 8px;
+    transition: 0.18s ease;
+  }
+
+  .email-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
   }
 
   .email-btn-primary {
-    background: linear-gradient(135deg, #7C3AED, #4F46E5);
+    background: linear-gradient(135deg, #4F46E5, #2563EB);
     color: #fff;
-    box-shadow: 0 8px 22px rgba(124, 58, 237, 0.25);
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.26);
   }
 
   .email-btn-secondary {
@@ -90,71 +109,115 @@ const GLOBAL_CSS = `
     color: ${C.primaryDark};
   }
 
+  .email-btn-light {
+    background: #F9FAFB;
+    color: ${C.textB};
+    border: 1px solid ${C.border};
+  }
+
   .email-btn:disabled {
-    opacity: 0.65;
+    opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
   }
 
   .email-section-label {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     margin-bottom: 14px;
   }
 
   .email-section-label span:first-child {
-    width: 3px;
-    height: 16px;
-    border-radius: 2px;
-    background: linear-gradient(180deg,#7C3AED,#4F46E5);
+    width: 34px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #4F46E5, #2563EB);
   }
 
   .email-section-label span:last-child {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: ${C.textLight};
+    color: ${C.textMuted};
   }
 
   .email-history-item {
     width: 100%;
     text-align: left;
     border: 1px solid ${C.border};
-    border-radius: 14px;
-    padding: 13px 14px;
+    border-radius: 16px;
+    padding: 14px;
     margin-bottom: 10px;
     cursor: pointer;
-    background: #FBFAFF;
+    background: #FFFFFF;
+    transition: 0.18s ease;
   }
 
   .email-history-item:hover {
-    background: #F3F0FF;
+    background: #F8FAFC;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(17, 24, 39, 0.05);
+  }
+
+  .email-alert-error,
+  .email-alert-success {
+    padding: 13px 15px;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1px solid transparent;
   }
 
   .email-alert-error {
-    background: #FEE2E2;
-    color: #991B1B;
-    padding: 11px 13px;
-    border-radius: 12px;
-    margin-bottom: 14px;
-    font-size: 13px;
-    font-weight: 700;
+    background: ${C.dangerBg};
+    color: ${C.dangerText};
+    border-color: #FECACA;
   }
 
   .email-alert-success {
-    background: #ECFDF5;
-    color: #047857;
-    padding: 11px 13px;
-    border-radius: 12px;
-    margin-bottom: 14px;
+    background: ${C.successBg};
+    color: ${C.successText};
+    border-color: #A7F3D0;
+  }
+
+  .email-empty-state {
+    padding: 80px 20px;
+    text-align: center;
+    color: ${C.textLight};
     font-size: 13px;
-    font-weight: 700;
+    background: #F9FAFB;
+    border-radius: 18px;
+    border: 1px dashed ${C.border};
+  }
+
+  .email-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .email-scroll::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 999px;
+  }
+
+  .email-spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid rgba(255,255,255,0.45);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: emailSpin 0.75s linear infinite;
   }
 
   @media (max-width: 1180px) {
     .email-grid {
       grid-template-columns: 1fr !important;
+    }
+
+    .email-page {
+      padding: 24px 18px 48px !important;
     }
   }
 `;
@@ -175,9 +238,9 @@ function StatusBadge({ status }) {
   return (
     <span
       style={{
-        background: isSent ? '#ECFDF5' : isFailed ? '#FEE2E2' : C.primarySoft,
-        color: isSent ? '#047857' : isFailed ? '#B91C1C' : C.primaryDark,
-        padding: '5px 9px',
+        background: isSent ? C.successBg : isFailed ? C.dangerBg : C.primarySoft,
+        color: isSent ? C.successText : isFailed ? C.dangerText : C.primaryDark,
+        padding: '6px 10px',
         borderRadius: 999,
         fontSize: 11,
         fontWeight: 800,
@@ -207,16 +270,21 @@ function EmailHistoryPanel({ history, loadingHistory, onSelectHistory, onRefresh
             justifyContent: 'space-between',
             alignItems: 'center',
             gap: 12,
-            marginBottom: 16,
+            marginBottom: 18,
           }}
         >
-          <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: C.textH }}>
-            Recent Emails
-          </h2>
+          <div>
+            <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0, color: C.textH }}>
+              Recent Emails
+            </h2>
+            <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>
+              View previous generated emails
+            </p>
+          </div>
 
           <button
             type="button"
-            className="email-btn email-btn-secondary"
+            className="email-btn email-btn-light"
             onClick={onRefreshHistory}
             disabled={loadingHistory}
           >
@@ -225,12 +293,12 @@ function EmailHistoryPanel({ history, loadingHistory, onSelectHistory, onRefresh
         </div>
 
         {history.length === 0 && !loadingHistory && (
-          <div style={{ padding: '28px 0', textAlign: 'center', color: C.textLight, fontSize: 13 }}>
+          <div className="email-empty-state" style={{ padding: '42px 16px' }}>
             No email history found yet
           </div>
         )}
 
-        <div style={{ maxHeight: 620, overflowY: 'auto', paddingRight: 4 }}>
+        <div className="email-scroll" style={{ maxHeight: 620, overflowY: 'auto', paddingRight: 4 }}>
           {history.map((item) => (
             <button
               key={item.id}
@@ -258,7 +326,7 @@ function EmailHistoryPanel({ history, loadingHistory, onSelectHistory, onRefresh
                     {item.recipient || 'N/A'} • {item.recipient_email || 'N/A'}
                   </div>
 
-                  <div style={{ fontSize: 11, color: C.textLight, marginTop: 4 }}>
+                  <div style={{ fontSize: 11, color: C.textLight, marginTop: 5 }}>
                     {formatDate(item.created_at)}
                   </div>
                 </div>
@@ -420,32 +488,126 @@ export default function EmailGenerator() {
       <style>{GLOBAL_CSS}</style>
 
       <div
+        className="email-page"
         style={{
           minHeight: '100vh',
           background: C.pageBg,
           fontFamily: FONT,
-          padding: '36px 40px 64px',
+          padding: '32px 36px 64px',
         }}
       >
-        <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: 26, fontWeight: 800, color: C.textH, margin: 0 }}>
-            Single Email Generator ✉️
-          </h1>
+        <div
+          className="email-card"
+          style={{
+            padding: 28,
+            marginBottom: 24,
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 45%, #EEF2FF 100%)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: 20,
+              alignItems: 'center',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  padding: '7px 11px',
+                  borderRadius: 999,
+                  background: C.primarySoft,
+                  color: C.primaryDark,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  marginBottom: 12,
+                }}
+              >
+                AI Email Automation
+              </div>
 
-          <p style={{ fontSize: 13, color: C.textMuted, marginTop: 4 }}>
-            Generate, preview, edit, and send professional AI emails
-          </p>
+              <h1
+                style={{
+                  fontSize: 30,
+                  fontWeight: 800,
+                  color: C.textH,
+                  letterSpacing: '-0.8px',
+                  margin: 0,
+                }}
+              >
+                Single Email Generator
+              </h1>
+
+              <p
+                style={{
+                  fontSize: 14,
+                  color: C.textMuted,
+                  margin: '8px 0 0',
+                  maxWidth: 680,
+                }}
+              >
+                Generate professional emails, preview the content, edit before sending, and track
+                all previous single-email activity.
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, minmax(90px, 1fr))',
+                gap: 12,
+                minWidth: 320,
+              }}
+            >
+              <div className="email-card" style={{ padding: 16 }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.textH }}>
+                  {history.length}
+                </div>
+                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
+                  History
+                </div>
+              </div>
+
+              <div className="email-card" style={{ padding: 16 }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.primary }}>
+                  {result ? 1 : 0}
+                </div>
+                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
+                  Generated
+                </div>
+              </div>
+
+              <div className="email-card" style={{ padding: 16 }}>
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 800,
+                    color: result?.status === 'sent' ? C.successText : C.textH,
+                    textTransform: 'capitalize',
+                  }}
+                >
+                  {result?.status === 'sent' ? 'Sent' : 'Draft'}
+                </div>
+                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
+                  Status
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {!smtpConnected && (
           <div className="email-alert-error">
-            Please connect email sender from Email Settings.
+            Please connect your email sender from Email Settings before sending emails.
           </div>
         )}
 
         {smtpConnected && (
           <div className="email-alert-success">
-            Connected Email: <b>{smtpConnected.smtp_email}</b>
+            Connected email account: <b>{smtpConnected.smtp_email}</b>
           </div>
         )}
 
@@ -454,7 +616,7 @@ export default function EmailGenerator() {
           style={{
             display: 'grid',
             gridTemplateColumns: '360px minmax(520px, 1fr) 380px',
-            gap: 20,
+            gap: 22,
             alignItems: 'start',
             width: '100%',
           }}
@@ -463,9 +625,13 @@ export default function EmailGenerator() {
             <SectionLabel>Create Email</SectionLabel>
 
             <div className="email-card" style={{ padding: 22 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 800, marginBottom: 18, color: C.textH }}>
+              <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 4px', color: C.textH }}>
                 Generate Email
               </h2>
+
+              <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 18px' }}>
+                Enter recipient details and context to create a polished email.
+              </p>
 
               <form onSubmit={generate}>
                 <div style={{ marginBottom: 15 }}>
@@ -529,8 +695,19 @@ export default function EmailGenerator() {
                   />
                 </div>
 
-                <button className="email-btn email-btn-primary" disabled={loading} style={{ width: '100%' }}>
-                  {loading ? 'Generating...' : '🤖 Generate Email'}
+                <button
+                  className="email-btn email-btn-primary"
+                  disabled={loading}
+                  style={{ width: '100%' }}
+                >
+                  {loading ? (
+                    <>
+                      <span className="email-spinner" />
+                      Generating...
+                    </>
+                  ) : (
+                    'Generate Email'
+                  )}
                 </button>
               </form>
             </div>
@@ -539,24 +716,30 @@ export default function EmailGenerator() {
           <div>
             <SectionLabel>Email Preview</SectionLabel>
 
-            <div className="email-card" style={{ minHeight: 620, padding: 22 }}>
+            <div className="email-card" style={{ minHeight: 640, padding: 22 }}>
               <div
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginBottom: 16,
+                  marginBottom: 18,
                   gap: 12,
                   flexWrap: 'wrap',
                 }}
               >
-                <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: C.textH }}>
-                  Preview & Edit
-                </h2>
+                <div>
+                  <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0, color: C.textH }}>
+                    Preview & Edit
+                  </h2>
+
+                  <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>
+                    Review the generated email before sending.
+                  </p>
+                </div>
               </div>
 
               {!result && (
-                <div style={{ padding: '60px 20px', textAlign: 'center', color: C.textLight, fontSize: 13 }}>
+                <div className="email-empty-state">
                   Generated email preview will appear here.
                 </div>
               )}
@@ -565,18 +748,18 @@ export default function EmailGenerator() {
                 <>
                   <div
                     style={{
-                      background: '#FBFAFF',
+                      background: '#F9FAFB',
                       border: `1px solid ${C.border}`,
-                      borderRadius: 14,
-                      padding: 14,
+                      borderRadius: 16,
+                      padding: 16,
                       marginBottom: 16,
                     }}
                   >
-                    <p style={{ marginBottom: 6, fontSize: 13, color: C.textB }}>
+                    <p style={{ margin: '0 0 7px', fontSize: 13, color: C.textB }}>
                       <b>To:</b> {result.recipient || 'N/A'} — {result.recipient_email || 'N/A'}
                     </p>
 
-                    <p style={{ marginBottom: 8, fontSize: 13, color: C.textB }}>
+                    <p style={{ margin: '0 0 10px', fontSize: 13, color: C.textB }}>
                       <b>Created:</b> {formatDate(result.created_at)}
                     </p>
 
@@ -588,19 +771,28 @@ export default function EmailGenerator() {
                       <div
                         style={{
                           border: `1px solid ${C.border}`,
-                          borderRadius: 16,
+                          borderRadius: 18,
+                          background: '#FFFFFF',
                           overflow: 'hidden',
                           marginBottom: 16,
                         }}
                       >
                         <div
                           style={{
-                            background: 'linear-gradient(135deg, #F5F3FF, #EEF2FF)',
+                            background: 'linear-gradient(135deg, #F8FAFC, #EEF2FF)',
                             borderBottom: `1px solid ${C.border}`,
-                            padding: '16px 20px',
+                            padding: '18px 20px',
                           }}
                         >
-                          <div style={{ fontSize: 11, fontWeight: 800, color: C.textMuted, marginBottom: 6 }}>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 800,
+                              color: C.textMuted,
+                              marginBottom: '7px',
+                              letterSpacing: '0.08em',
+                            }}
+                          >
                             SUBJECT
                           </div>
 
@@ -609,8 +801,16 @@ export default function EmailGenerator() {
                           </div>
                         </div>
 
-                        <div style={{ padding: 20, background: '#fff' }}>
-                          <div style={{ fontSize: 11, fontWeight: 800, color: C.textMuted, marginBottom: 14 }}>
+                        <div style={{ padding: 20 }}>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 800,
+                              color: C.textMuted,
+                              marginBottom: '14px',
+                              letterSpacing: '0.08em',
+                            }}
+                          >
                             EMAIL BODY
                           </div>
 
@@ -619,7 +819,7 @@ export default function EmailGenerator() {
                               whiteSpace: 'pre-wrap',
                               fontFamily: FONT,
                               fontSize: 14,
-                              lineHeight: 1.8,
+                              lineHeight: 1.85,
                               color: C.textB,
                               margin: 0,
                             }}
@@ -635,7 +835,7 @@ export default function EmailGenerator() {
                           onClick={() => setEditing(true)}
                           disabled={result.status === 'sent'}
                         >
-                          ✏️ Edit Email
+                          Edit Email
                         </button>
 
                         <button
@@ -663,17 +863,34 @@ export default function EmailGenerator() {
                         <textarea
                           className="email-textarea"
                           value={result.generated_email || ''}
-                          onChange={(e) => setResult({ ...result, generated_email: e.target.value })}
-                          style={{ minHeight: 420, fontFamily: FONT, resize: 'vertical' }}
+                          onChange={(e) =>
+                            setResult({
+                              ...result,
+                              generated_email: e.target.value,
+                            })
+                          }
+                          style={{
+                            minHeight: 420,
+                            fontFamily: FONT,
+                            resize: 'vertical',
+                            lineHeight: 1.75,
+                          }}
                         />
                       </div>
 
                       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                        <button className="email-btn email-btn-primary" onClick={saveEdit} disabled={savingEdit}>
+                        <button
+                          className="email-btn email-btn-primary"
+                          onClick={saveEdit}
+                          disabled={savingEdit}
+                        >
                           {savingEdit ? 'Saving...' : 'Save Edit'}
                         </button>
 
-                        <button className="email-btn email-btn-secondary" onClick={() => setEditing(false)}>
+                        <button
+                          className="email-btn email-btn-light"
+                          onClick={() => setEditing(false)}
+                        >
                           Cancel
                         </button>
                       </div>
