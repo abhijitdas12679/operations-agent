@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { forceDownload } from '../utils/download';
@@ -22,12 +22,12 @@ const C = {
 
 const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
 
+const TEMPLATE_FILE_URL = '/templates/Minutes_of_Meeting_Template.docx';
+
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-  *, *::before, *::after {
-    box-sizing: border-box;
-  }
+  *, *::before, *::after { box-sizing: border-box; }
 
   body {
     margin: 0;
@@ -92,6 +92,8 @@ const GLOBAL_CSS = `
     justify-content: center;
     gap: 8px;
     transition: 0.18s ease;
+    white-space: nowrap;
+    text-decoration: none;
   }
 
   .mom-btn:hover:not(:disabled) {
@@ -167,33 +169,120 @@ const GLOBAL_CSS = `
     color: #FFFFFF;
     display: grid;
     place-items: center;
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 900;
     flex-shrink: 0;
+    letter-spacing: 0.02em;
   }
 
   .mom-report-body {
-    padding: 20px;
+    padding: 22px;
+  }
+
+  .mom-report-body section {
+    padding: 16px 0;
+    border-bottom: 1px solid #EEF2F7;
+  }
+
+  .mom-report-body section:first-child {
+    padding-top: 0;
+  }
+
+  .mom-report-body section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .mom-report-body h2 {
+    color: ${C.textH};
+    font-size: 21px;
+    line-height: 1.35;
+    margin: 0 0 14px;
+    letter-spacing: -0.4px;
   }
 
   .mom-report-body h3 {
-    color: ${C.textH};
+    color: ${C.primaryDark};
     font-size: 15px;
-    margin: 16px 0 8px;
+    line-height: 1.4;
+    margin: 0 0 10px;
+    font-weight: 800;
   }
 
   .mom-report-body p {
     color: ${C.textB};
-    font-size: 13px;
-    line-height: 1.75;
+    font-size: 13.5px;
+    line-height: 1.8;
     margin: 8px 0;
+  }
+
+  .mom-report-body ol,
+  .mom-report-body ul {
+    padding-left: 22px;
+    margin: 8px 0 0;
   }
 
   .mom-report-body li {
     color: ${C.textB};
-    font-size: 13px;
-    line-height: 1.75;
-    margin-left: 18px;
+    font-size: 13.5px;
+    line-height: 1.8;
+    margin: 8px 0;
+    padding-left: 4px;
+  }
+
+  .mom-report-body strong {
+    color: ${C.textH};
+    font-weight: 800;
+  }
+
+  .mom-report-body em {
+    color: ${C.textMuted};
+  }
+
+  .priority-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.2;
+    border: 1px solid transparent;
+    vertical-align: middle;
+  }
+
+  .priority-high {
+    background: #FEF2F2;
+    color: #B91C1C;
+    border-color: #FECACA;
+  }
+
+  .priority-high::before {
+    content: "●";
+    font-size: 9px;
+  }
+
+  .priority-medium {
+    background: #FFFBEB;
+    color: #B45309;
+    border-color: #FDE68A;
+  }
+
+  .priority-medium::before {
+    content: "●";
+    font-size: 9px;
+  }
+
+  .priority-low {
+    background: #ECFDF5;
+    color: #047857;
+    border-color: #A7F3D0;
+  }
+
+  .priority-low::before {
+    content: "●";
+    font-size: 9px;
   }
 
   .mom-history-item {
@@ -221,6 +310,17 @@ const GLOBAL_CSS = `
     font-size: 13px;
     font-weight: 700;
     border: 1px solid #FECACA;
+  }
+
+  .mom-success {
+    background: ${C.successBg};
+    color: ${C.successText};
+    padding: 13px 15px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1px solid #A7F3D0;
   }
 
   .mom-empty-state {
@@ -259,32 +359,116 @@ const GLOBAL_CSS = `
     .mom-page {
       padding: 24px 18px 48px !important;
     }
+
+    .mom-stat-grid {
+      grid-template-columns: 1fr !important;
+      min-width: 100% !important;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .mom-report-top {
+      align-items: flex-start;
+    }
+
+    .mom-report-body {
+      padding: 16px;
+    }
+
+    .mom-title {
+      font-size: 24px !important;
+    }
   }
 `;
 
-function cleanMomText(text = '') {
-  return text.replaceAll('**', '').replaceAll('---', '').trim();
+function escapeHtml(value = '') {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
-function renderMomContent(text = '') {
-  const lines = cleanMomText(text)
+function normalizePriorityBadges(html = '') {
+  return html
+    .replace(/High Priority/gi, '<span class="priority-badge priority-high">High Priority</span>')
+    .replace(/Medium Priority/gi, '<span class="priority-badge priority-medium">Medium Priority</span>')
+    .replace(/Low Priority/gi, '<span class="priority-badge priority-low">Low Priority</span>');
+}
+
+function convertLegacyMomToHtml(text = '') {
+  const cleaned = String(text || '')
+    .replaceAll('**', '')
+    .replaceAll('---', '')
+    .trim();
+
+  if (!cleaned) return '<p>No MOM content available.</p>';
+
+  if (/<(section|h2|h3|p|ol|ul|li|strong|span)\b/i.test(cleaned)) {
+    return normalizePriorityBadges(cleaned);
+  }
+
+  const lines = cleaned
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean);
 
-  return lines.map((line, index) => {
-    if (line.startsWith('# ')) return null;
+  let html = '';
+  let listOpen = false;
+
+  lines.forEach((line) => {
+    const safeLine = escapeHtml(line);
+
+    if (line.startsWith('# ')) {
+      if (listOpen) {
+        html += '</ol>';
+        listOpen = false;
+      }
+      html += `<section><h2>${escapeHtml(line.replace('# ', ''))}</h2>`;
+      return;
+    }
 
     if (line.startsWith('## ')) {
-      return <h3 key={index}>{line.replace('## ', '')}</h3>;
+      if (listOpen) {
+        html += '</ol>';
+        listOpen = false;
+      }
+      html += `</section><section><h3>${escapeHtml(line.replace('## ', ''))}</h3>`;
+      return;
+    }
+
+    if (/^\d+\./.test(line)) {
+      if (!listOpen) {
+        html += '<ol>';
+        listOpen = true;
+      }
+      html += `<li>${safeLine.replace(/^\d+\.\s*/, '')}</li>`;
+      return;
     }
 
     if (line.startsWith('- ') || line.startsWith('* ')) {
-      return <li key={index}>{line.slice(2)}</li>;
+      if (!listOpen) {
+        html += '<ul>';
+        listOpen = true;
+      }
+      html += `<li>${escapeHtml(line.slice(2))}</li>`;
+      return;
     }
 
-    return <p key={index}>{line}</p>;
+    if (listOpen) {
+      html += '</ol>';
+      listOpen = false;
+    }
+
+    html += `<p>${safeLine}</p>`;
   });
+
+  if (listOpen) html += '</ol>';
+  if (!html.includes('<section')) html = `<section>${html}</section>`;
+  if (!html.endsWith('</section>')) html += '</section>';
+
+  return normalizePriorityBadges(html);
 }
 
 function SectionLabel({ children }) {
@@ -297,6 +481,8 @@ function SectionLabel({ children }) {
 }
 
 function ProfessionalMOMView({ mom, title }) {
+  const html = useMemo(() => convertLegacyMomToHtml(mom), [mom]);
+
   return (
     <div className="mom-report">
       <div className="mom-report-top">
@@ -313,7 +499,7 @@ function ProfessionalMOMView({ mom, title }) {
         </div>
       </div>
 
-      <div className="mom-report-body">{renderMomContent(mom)}</div>
+      <div className="mom-report-body" dangerouslySetInnerHTML={{ __html: html }} />
     </div>
   );
 }
@@ -338,6 +524,15 @@ function ExportButtons({ id }) {
     } finally {
       setExporting('');
     }
+  };
+
+  const downloadTemplate = () => {
+    const link = document.createElement('a');
+    link.href = TEMPLATE_FILE_URL;
+    link.download = 'Minutes_of_Meeting_Template.docx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -373,6 +568,16 @@ function ExportButtons({ id }) {
       </button>
 
       <button
+        className="mom-btn mom-btn-light"
+        onClick={(e) => {
+          e.stopPropagation();
+          downloadTemplate();
+        }}
+      >
+        Download Template
+      </button>
+
+      <button
         className="mom-btn mom-btn-primary"
         onClick={(e) => {
           e.stopPropagation();
@@ -395,7 +600,10 @@ export default function MeetingMOM() {
 
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
   const [history, setHistory] = useState([]);
   const [selected, setSelected] = useState(null);
 
@@ -417,17 +625,28 @@ export default function MeetingMOM() {
     });
   };
 
+  const downloadTemplate = () => {
+    const link = document.createElement('a');
+    link.href = TEMPLATE_FILE_URL;
+    link.download = 'Minutes_of_Meeting_Template.docx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const submit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
     setError('');
+    setSuccess('');
     setResult(null);
 
     try {
       const res = await api.post('/meeting/generate-mom', form);
       setResult(res.data);
       fetchHistory();
+      setSuccess('MOM generated successfully.');
     } catch (err) {
       setError(err.response?.data?.detail || 'Generation failed');
     } finally {
@@ -482,6 +701,7 @@ export default function MeetingMOM() {
               </div>
 
               <h1
+                className="mom-title"
                 style={{
                   fontSize: 30,
                   fontWeight: 800,
@@ -502,12 +722,13 @@ export default function MeetingMOM() {
                   lineHeight: 1.7,
                 }}
               >
-                Convert rough meeting notes into structured minutes, export them as PDF or DOCX,
-                and share clean MOM documents with stakeholders.
+                Generate structured MOMs using the standard template format with highlighted
+                decisions, deadlines, owners, action items, and priorities.
               </p>
             </div>
 
             <div
+              className="mom-stat-grid"
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, minmax(90px, 1fr))',
@@ -545,6 +766,13 @@ export default function MeetingMOM() {
           </div>
         </div>
 
+        {(error || success) && (
+          <div style={{ marginBottom: 18 }}>
+            {error && <div className="mom-alert">{error}</div>}
+            {success && <div className="mom-success">{success}</div>}
+          </div>
+        )}
+
         <div
           className="mom-grid"
           style={{
@@ -558,15 +786,34 @@ export default function MeetingMOM() {
             <SectionLabel>Create MOM</SectionLabel>
 
             <div className="mom-card" style={{ padding: 22 }}>
-              <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 4px', color: C.textH }}>
-                Generate Minutes of Meeting
-              </h2>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                  alignItems: 'flex-start',
+                  marginBottom: 18,
+                  flexWrap: 'wrap',
+                }}
+              >
+                <div>
+                  <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 4px', color: C.textH }}>
+                    Generate Minutes of Meeting
+                  </h2>
 
-              <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 18px' }}>
-                Add meeting details and raw notes to generate a professional MOM.
-              </p>
+                  <p style={{ fontSize: 12, color: C.textMuted, margin: 0, lineHeight: 1.6 }}>
+                    Add meeting details and raw notes to generate a professional MOM.
+                  </p>
+                </div>
 
-              {error && <div className="mom-alert">{error}</div>}
+                <button
+                  type="button"
+                  className="mom-btn mom-btn-light"
+                  onClick={downloadTemplate}
+                >
+                  Download Template
+                </button>
+              </div>
 
               <form onSubmit={submit}>
                 <div style={{ marginBottom: 15 }}>
@@ -671,7 +918,10 @@ export default function MeetingMOM() {
               {history.length === 0 ? (
                 <div className="mom-empty-state">No MOMs generated yet</div>
               ) : (
-                <div className="mom-scroll" style={{ maxHeight: 560, overflowY: 'auto', paddingRight: 4 }}>
+                <div
+                  className="mom-scroll"
+                  style={{ maxHeight: 560, overflowY: 'auto', paddingRight: 4 }}
+                >
                   {history.map((h) => (
                     <div
                       key={h.id}
