@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.example
+backup.sql
+.git/
+node_modules/
+dist/

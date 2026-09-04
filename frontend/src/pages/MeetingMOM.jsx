@@ -1,28 +1,26 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { forceDownload } from '../utils/download';
 
 const C = {
-  pageBg: '#F6F7FB',
-  card: '#FFFFFF',
-  border: '#E6E8F0',
-  textH: '#111827',
-  textB: '#4B5563',
-  textMuted: '#6B7280',
-  textLight: '#9CA3AF',
-  primary: '#4F46E5',
-  primaryDark: '#3730A3',
-  primarySoft: '#EEF2FF',
-  successBg: '#ECFDF5',
-  successText: '#047857',
-  dangerBg: '#FEF2F2',
-  dangerText: '#B91C1C',
+  pageBg: 'var(--oa-page-bg)',
+  card: 'var(--oa-card)',
+  border: 'var(--oa-border)',
+  textH: 'var(--oa-text-h)',
+  textB: 'var(--oa-text-b)',
+  textMuted: 'var(--oa-text-muted)',
+  textLight: 'var(--oa-text-light)',
+  primary: 'var(--oa-primary)',
+  primaryDark: 'var(--oa-primary-dark)',
+  primarySoft: 'var(--oa-primary-soft)',
+  successBg: 'var(--oa-success-bg)',
+  successText: 'var(--oa-success-text)',
+  dangerBg: 'var(--oa-danger-bg)',
+  dangerText: 'var(--oa-danger-text)',
 };
 
 const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
-
-const TEMPLATE_FILE_URL = '/templates/Minutes_of_Meeting_Template.docx';
 
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -47,15 +45,16 @@ const GLOBAL_CSS = `
     background: ${C.card};
     border: 1px solid ${C.border};
     border-radius: 20px;
-    box-shadow: 0 16px 40px rgba(17, 24, 39, 0.06);
+    box-shadow: 0 16px 40px rgba(var(--oa-shadow-rgb), 0.06);
     animation: fadeUp 0.3s ease both;
   }
 
   .mom-input,
+  .mom-select,
   .mom-textarea {
     width: 100%;
     border: 1px solid ${C.border};
-    background: #FFFFFF;
+    background: var(--oa-card);
     border-radius: 12px;
     padding: 12px 14px;
     font-size: 13px;
@@ -66,9 +65,10 @@ const GLOBAL_CSS = `
   }
 
   .mom-input:focus,
+  .mom-select:focus,
   .mom-textarea:focus {
     border-color: ${C.primary};
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+    box-shadow: 0 0 0 4px rgba(var(--oa-focus-rgb), 0.12);
   }
 
   .mom-label {
@@ -103,7 +103,7 @@ const GLOBAL_CSS = `
   .mom-btn-primary {
     background: linear-gradient(135deg, #4F46E5, #2563EB);
     color: #fff;
-    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.26);
+    box-shadow: 0 10px 24px rgba(var(--oa-focus-rgb), 0.26);
   }
 
   .mom-btn-secondary {
@@ -112,7 +112,7 @@ const GLOBAL_CSS = `
   }
 
   .mom-btn-light {
-    background: #F9FAFB;
+    background: var(--oa-subtle-bg);
     color: ${C.textB};
     border: 1px solid ${C.border};
   }
@@ -145,162 +145,6 @@ const GLOBAL_CSS = `
     color: ${C.textMuted};
   }
 
-  .mom-report {
-    background: #FFFFFF;
-    border: 1px solid ${C.border};
-    border-radius: 18px;
-    overflow: hidden;
-  }
-
-  .mom-report-top {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 20px;
-    background: linear-gradient(135deg, #F8FAFC, #EEF2FF);
-    border-bottom: 1px solid ${C.border};
-  }
-
-  .mom-report-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #4F46E5, #2563EB);
-    color: #FFFFFF;
-    display: grid;
-    place-items: center;
-    font-size: 13px;
-    font-weight: 900;
-    flex-shrink: 0;
-    letter-spacing: 0.02em;
-  }
-
-  .mom-report-body {
-    padding: 22px;
-  }
-
-  .mom-report-body section {
-    padding: 16px 0;
-    border-bottom: 1px solid #EEF2F7;
-  }
-
-  .mom-report-body section:first-child {
-    padding-top: 0;
-  }
-
-  .mom-report-body section:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-
-  .mom-report-body h2 {
-    color: ${C.textH};
-    font-size: 21px;
-    line-height: 1.35;
-    margin: 0 0 14px;
-    letter-spacing: -0.4px;
-  }
-
-  .mom-report-body h3 {
-    color: ${C.primaryDark};
-    font-size: 15px;
-    line-height: 1.4;
-    margin: 0 0 10px;
-    font-weight: 800;
-  }
-
-  .mom-report-body p {
-    color: ${C.textB};
-    font-size: 13.5px;
-    line-height: 1.8;
-    margin: 8px 0;
-  }
-
-  .mom-report-body ol,
-  .mom-report-body ul {
-    padding-left: 22px;
-    margin: 8px 0 0;
-  }
-
-  .mom-report-body li {
-    color: ${C.textB};
-    font-size: 13.5px;
-    line-height: 1.8;
-    margin: 8px 0;
-    padding-left: 4px;
-  }
-
-  .mom-report-body strong {
-    color: ${C.textH};
-    font-weight: 800;
-  }
-
-  .mom-report-body em {
-    color: ${C.textMuted};
-  }
-
-  .priority-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 800;
-    line-height: 1.2;
-    border: 1px solid transparent;
-    vertical-align: middle;
-  }
-
-  .priority-high {
-    background: #FEF2F2;
-    color: #B91C1C;
-    border-color: #FECACA;
-  }
-
-  .priority-high::before {
-    content: "●";
-    font-size: 9px;
-  }
-
-  .priority-medium {
-    background: #FFFBEB;
-    color: #B45309;
-    border-color: #FDE68A;
-  }
-
-  .priority-medium::before {
-    content: "●";
-    font-size: 9px;
-  }
-
-  .priority-low {
-    background: #ECFDF5;
-    color: #047857;
-    border-color: #A7F3D0;
-  }
-
-  .priority-low::before {
-    content: "●";
-    font-size: 9px;
-  }
-
-  .mom-history-item {
-    padding: 14px;
-    border-radius: 16px;
-    cursor: pointer;
-    margin-bottom: 10px;
-    border: 1px solid ${C.border};
-    background: #FFFFFF;
-    transition: 0.18s ease;
-  }
-
-  .mom-history-item:hover {
-    background: #F8FAFC;
-    transform: translateY(-1px);
-    box-shadow: 0 10px 22px rgba(17, 24, 39, 0.05);
-  }
-
   .mom-alert {
     background: ${C.dangerBg};
     color: ${C.dangerText};
@@ -309,7 +153,7 @@ const GLOBAL_CSS = `
     margin-bottom: 16px;
     font-size: 13px;
     font-weight: 700;
-    border: 1px solid #FECACA;
+    border: 1px solid var(--oa-danger-bg);
   }
 
   .mom-success {
@@ -320,7 +164,7 @@ const GLOBAL_CSS = `
     margin-bottom: 16px;
     font-size: 13px;
     font-weight: 700;
-    border: 1px solid #A7F3D0;
+    border: 1px solid var(--oa-success-bg);
   }
 
   .mom-empty-state {
@@ -328,7 +172,7 @@ const GLOBAL_CSS = `
     text-align: center;
     color: ${C.textLight};
     font-size: 13px;
-    background: #F9FAFB;
+    background: var(--oa-subtle-bg);
     border-radius: 18px;
     border: 1px dashed ${C.border};
   }
@@ -340,6 +184,30 @@ const GLOBAL_CSS = `
     border-top-color: #fff;
     border-radius: 50%;
     animation: momSpin 0.75s linear infinite;
+  }
+
+  .mom-preview-frame {
+    width: 100%;
+    height: 820px;
+    border: 1px solid ${C.border};
+    border-radius: 18px;
+    background: var(--oa-card);
+  }
+
+  .mom-history-item {
+    padding: 14px;
+    border-radius: 16px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    border: 1px solid ${C.border};
+    background: var(--oa-card);
+    transition: 0.18s ease;
+  }
+
+  .mom-history-item:hover {
+    background: var(--oa-subtle-bg);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(17, 24, 39, 0.05);
   }
 
   .mom-scroll::-webkit-scrollbar {
@@ -367,108 +235,39 @@ const GLOBAL_CSS = `
   }
 
   @media (max-width: 560px) {
-    .mom-report-top {
-      align-items: flex-start;
-    }
-
-    .mom-report-body {
-      padding: 16px;
-    }
-
     .mom-title {
       font-size: 24px !important;
+    }
+
+    .mom-preview-frame {
+      height: 640px;
     }
   }
 `;
 
-function escapeHtml(value = '') {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+function displayTemplateName(file = '') {
+  return String(file || '').replace(/\.docx$/i, '');
 }
 
-function normalizePriorityBadges(html = '') {
-  return html
-    .replace(/High Priority/gi, '<span class="priority-badge priority-high">High Priority</span>')
-    .replace(/Medium Priority/gi, '<span class="priority-badge priority-medium">Medium Priority</span>')
-    .replace(/Low Priority/gi, '<span class="priority-badge priority-low">Low Priority</span>');
+function toAbsoluteUrl(url = '') {
+  if (!url) return '';
+  if (url.startsWith('blob:')) return url;
+  if (url.startsWith('http')) return url;
+  return `${api.defaults.baseURL}${url}`;
 }
 
-function convertLegacyMomToHtml(text = '') {
-  const cleaned = String(text || '')
-    .replaceAll('**', '')
-    .replaceAll('---', '')
-    .trim();
+async function getAuthenticatedPreviewUrl(downloadUrl = '') {
+  if (!downloadUrl) return '';
 
-  if (!cleaned) return '<p>No MOM content available.</p>';
+  const absoluteUrl = toAbsoluteUrl(downloadUrl);
 
-  if (/<(section|h2|h3|p|ol|ul|li|strong|span)\b/i.test(cleaned)) {
-    return normalizePriorityBadges(cleaned);
-  }
-
-  const lines = cleaned
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  let html = '';
-  let listOpen = false;
-
-  lines.forEach((line) => {
-    const safeLine = escapeHtml(line);
-
-    if (line.startsWith('# ')) {
-      if (listOpen) {
-        html += '</ol>';
-        listOpen = false;
-      }
-      html += `<section><h2>${escapeHtml(line.replace('# ', ''))}</h2>`;
-      return;
-    }
-
-    if (line.startsWith('## ')) {
-      if (listOpen) {
-        html += '</ol>';
-        listOpen = false;
-      }
-      html += `</section><section><h3>${escapeHtml(line.replace('## ', ''))}</h3>`;
-      return;
-    }
-
-    if (/^\d+\./.test(line)) {
-      if (!listOpen) {
-        html += '<ol>';
-        listOpen = true;
-      }
-      html += `<li>${safeLine.replace(/^\d+\.\s*/, '')}</li>`;
-      return;
-    }
-
-    if (line.startsWith('- ') || line.startsWith('* ')) {
-      if (!listOpen) {
-        html += '<ul>';
-        listOpen = true;
-      }
-      html += `<li>${escapeHtml(line.slice(2))}</li>`;
-      return;
-    }
-
-    if (listOpen) {
-      html += '</ol>';
-      listOpen = false;
-    }
-
-    html += `<p>${safeLine}</p>`;
+  const res = await api.get(absoluteUrl, {
+    responseType: 'blob',
   });
 
-  if (listOpen) html += '</ol>';
-  if (!html.includes('<section')) html = `<section>${html}</section>`;
-  if (!html.endsWith('</section>')) html += '</section>';
-
-  return normalizePriorityBadges(html);
+  return URL.createObjectURL(
+    new Blob([res.data], { type: 'application/pdf' })
+  );
 }
 
 function SectionLabel({ children }) {
@@ -480,35 +279,59 @@ function SectionLabel({ children }) {
   );
 }
 
-function ProfessionalMOMView({ mom, title }) {
-  const html = useMemo(() => convertLegacyMomToHtml(mom), [mom]);
+function ExactPreview({ pdfUrl, title, loading }) {
+  if (loading) {
+    return (
+      <div className="mom-empty-state">
+        Creating exact DOCX-based PDF preview...
+      </div>
+    );
+  }
+
+  if (!pdfUrl) {
+    return (
+      <div className="mom-empty-state">
+        Exact preview will appear here after generating PDF from the selected DOCX template.
+      </div>
+    );
+  }
 
   return (
-    <div className="mom-report">
-      <div className="mom-report-top">
-        <div className="mom-report-icon">MOM</div>
-
-        <div>
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: C.textH }}>
-            Minutes of Meeting
-          </h2>
-
-          <p style={{ margin: '4px 0 0', fontSize: 12, color: C.textMuted }}>
-            {title || 'Generated by Operations Agent'}
-          </p>
-        </div>
+    <div>
+      <div
+        style={{
+          padding: '16px 18px',
+          border: `1px solid ${C.border}`,
+          borderBottom: 'none',
+          borderRadius: '18px 18px 0 0',
+          background: 'linear-gradient(135deg, var(--oa-subtle-bg), #EEF2FF)',
+        }}
+      >
+        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: C.textH }}>
+          Exact MOM Preview
+        </h2>
+        <p style={{ margin: '4px 0 0', fontSize: 12, color: C.textMuted }}>
+          {title || 'Generated from selected DOCX template'}
+        </p>
       </div>
 
-      <div className="mom-report-body" dangerouslySetInnerHTML={{ __html: html }} />
+      <iframe
+        title="Exact MOM PDF Preview"
+        src={toAbsoluteUrl(pdfUrl)}
+        className="mom-preview-frame"
+        style={{ borderRadius: '0 0 18px 18px' }}
+      />
     </div>
   );
 }
 
-function ExportButtons({ id }) {
+function ExportButtons({ id, templateFilename, docxUrl, pdfUrl, onPdfReady }) {
   const [exporting, setExporting] = useState('');
   const navigate = useNavigate();
 
   const exportDoc = async (fmt) => {
+    if (!id) return;
+
     setExporting(fmt);
 
     try {
@@ -518,6 +341,10 @@ function ExportButtons({ id }) {
         export_format: fmt,
       });
 
+      if (fmt === 'pdf' && res.data?.download_url) {
+        onPdfReady?.(res.data.download_url);
+      }
+
       await forceDownload(res.data.download_url);
     } catch (e) {
       alert('Export failed: ' + (e.response?.data?.detail || e.message));
@@ -526,63 +353,54 @@ function ExportButtons({ id }) {
     }
   };
 
-  const downloadTemplate = () => {
-    const link = document.createElement('a');
-    link.href = TEMPLATE_FILE_URL;
-    link.download = 'Minutes_of_Meeting_Template.docx';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const downloadSelectedTemplate = () => {
+    if (!templateFilename) {
+      alert('No template file selected for this MOM.');
+      return;
+    }
+
+    const url = `/meeting-template-files/download?filename=${encodeURIComponent(templateFilename)}`;
+    window.open(api.defaults.baseURL + url, '_blank');
+  };
+
+  const downloadGeneratedDocx = async () => {
+    if (!docxUrl) {
+      await exportDoc('docx');
+      return;
+    }
+
+    await forceDownload(docxUrl);
+  };
+
+  const downloadGeneratedPdf = async () => {
+    if (!pdfUrl) {
+      await exportDoc('pdf');
+      return;
+    }
+
+    await forceDownload(pdfUrl);
   };
 
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      style={{
-        display: 'flex',
-        gap: 10,
-        marginTop: 16,
-        flexWrap: 'wrap',
-      }}
+      style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}
     >
-      <button
-        className="mom-btn mom-btn-secondary"
-        onClick={(e) => {
-          e.stopPropagation();
-          exportDoc('docx');
-        }}
-        disabled={!!exporting}
-      >
-        {exporting === 'docx' ? 'Exporting...' : 'Export DOCX'}
+      <button className="mom-btn mom-btn-secondary" onClick={downloadGeneratedDocx} disabled={!!exporting}>
+        {exporting === 'docx' ? 'Exporting...' : 'Download DOCX'}
       </button>
 
-      <button
-        className="mom-btn mom-btn-secondary"
-        onClick={(e) => {
-          e.stopPropagation();
-          exportDoc('pdf');
-        }}
-        disabled={!!exporting}
-      >
-        {exporting === 'pdf' ? 'Exporting...' : 'Export PDF'}
+      <button className="mom-btn mom-btn-secondary" onClick={downloadGeneratedPdf} disabled={!!exporting}>
+        {exporting === 'pdf' ? 'Exporting...' : 'Download PDF'}
       </button>
 
-      <button
-        className="mom-btn mom-btn-light"
-        onClick={(e) => {
-          e.stopPropagation();
-          downloadTemplate();
-        }}
-      >
+      <button className="mom-btn mom-btn-light" onClick={downloadSelectedTemplate} disabled={!templateFilename}>
         Download Template
       </button>
 
       <button
         className="mom-btn mom-btn-primary"
-        onClick={(e) => {
-          e.stopPropagation();
-          navigate(`/send-mom?meetingId=${id}`);
-        }}
+        onClick={() => navigate(`/send-mom?meetingId=${id}`)}
         disabled={!id}
       >
         Send MOM
@@ -596,16 +414,40 @@ export default function MeetingMOM() {
     meeting_title: '',
     attendees: '',
     raw_notes: '',
+    template_category: '',
+    template_filename: '',
+    template_file: '',
+    template_name: '',
   });
 
+  const [categories, setCategories] = useState([]);
   const [result, setResult] = useState(null);
+
+  const [previewPdfUrl, setPreviewPdfUrl] = useState('');
+  const [previewBlobUrl, setPreviewBlobUrl] = useState('');
+
   const [loading, setLoading] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   const [history, setHistory] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [historyPreviewLoadingId, setHistoryPreviewLoadingId] = useState(null);
+  const [historyPreviewBlobUrl, setHistoryPreviewBlobUrl] = useState('');
+
+  useEffect(() => {
+    return () => {
+      if (previewBlobUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(previewBlobUrl);
+      }
+
+      if (historyPreviewBlobUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(historyPreviewBlobUrl);
+      }
+    };
+  }, [previewBlobUrl, historyPreviewBlobUrl]);
 
   const fetchHistory = () => {
     api
@@ -614,24 +456,75 @@ export default function MeetingMOM() {
       .catch(console.error);
   };
 
+  const fetchCategories = () => {
+    api
+      .get('/meeting-template-files/categories')
+      .then((r) => {
+        const files = Array.isArray(r.data?.categories) ? r.data.categories : [];
+        setCategories(files);
+      })
+      .catch((err) => {
+        console.error(err);
+        setCategories([]);
+      });
+  };
+
   useEffect(() => {
     fetchHistory();
+    fetchCategories();
   }, []);
 
   const handle = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    if (name === 'template_category') {
+      setForm((prev) => ({
+        ...prev,
+        template_category: value,
+        template_filename: value,
+        template_file: value,
+        template_name: value,
+      }));
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const downloadTemplate = () => {
-    const link = document.createElement('a');
-    link.href = TEMPLATE_FILE_URL;
-    link.download = 'Minutes_of_Meeting_Template.docx';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const generatePreviewPdf = async (meetingId) => {
+    if (!meetingId) return '';
+
+    setPreviewLoading(true);
+
+    try {
+      const res = await api.post('/documents/export-pdf', {
+        content_id: meetingId,
+        doc_type: 'meeting',
+        export_format: 'pdf',
+      });
+
+      const downloadUrl = res.data?.download_url || '';
+
+      if (downloadUrl) {
+        setPreviewPdfUrl(downloadUrl);
+
+        if (previewBlobUrl?.startsWith('blob:')) {
+          URL.revokeObjectURL(previewBlobUrl);
+        }
+
+        const blobUrl = await getAuthenticatedPreviewUrl(downloadUrl);
+        setPreviewBlobUrl(blobUrl);
+
+        return downloadUrl;
+      }
+
+      return '';
+    } catch (err) {
+      setError(err.response?.data?.detail || 'PDF preview generation failed');
+      return '';
+    } finally {
+      setPreviewLoading(false);
+    }
   };
 
   const submit = async (e) => {
@@ -641,16 +534,93 @@ export default function MeetingMOM() {
     setError('');
     setSuccess('');
     setResult(null);
+    setPreviewPdfUrl('');
+
+    if (previewBlobUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(previewBlobUrl);
+    }
+
+    setPreviewBlobUrl('');
 
     try {
-      const res = await api.post('/meeting/generate-mom', form);
+      const selectedFile = form.template_filename || form.template_category;
+
+      const payload = {
+        meeting_title: form.meeting_title,
+        attendees: form.attendees,
+        raw_notes: form.raw_notes,
+        template_category: selectedFile || null,
+        template_filename: selectedFile || null,
+        template_file: selectedFile || null,
+        template_name: selectedFile || null,
+      };
+
+      const res = await api.post('/meeting/generate-mom', payload);
+
       setResult(res.data);
+      setSuccess('MOM generated successfully using the selected template.');
       fetchHistory();
-      setSuccess('MOM generated successfully.');
+
+      await generatePreviewPdf(res.data.id);
     } catch (err) {
       setError(err.response?.data?.detail || 'Generation failed');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openHistoryItem = async (h) => {
+    if (selected?.id === h.id) {
+      setSelected(null);
+
+      if (historyPreviewBlobUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(historyPreviewBlobUrl);
+      }
+
+      setHistoryPreviewBlobUrl('');
+      return;
+    }
+
+    setSelected({
+      ...h,
+      previewPdf: h.previewPdf || '',
+    });
+
+    setHistoryPreviewLoadingId(h.id);
+
+    if (historyPreviewBlobUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(historyPreviewBlobUrl);
+    }
+
+    setHistoryPreviewBlobUrl('');
+
+    try {
+      const res = await api.post('/documents/export-pdf', {
+        content_id: h.id,
+        doc_type: 'meeting',
+        export_format: 'pdf',
+      });
+
+      const pdfUrl = res.data?.download_url || '';
+      const blobUrl = pdfUrl ? await getAuthenticatedPreviewUrl(pdfUrl) : '';
+
+      const updated = {
+        ...h,
+        previewPdf: pdfUrl,
+      };
+
+      setSelected(updated);
+      setHistoryPreviewBlobUrl(blobUrl);
+
+      setHistory((prev) =>
+        prev.map((item) =>
+          item.id === h.id ? { ...item, previewPdf: pdfUrl } : item
+        )
+      );
+    } catch (err) {
+      setError(err.response?.data?.detail || 'History preview generation failed');
+    } finally {
+      setHistoryPreviewLoadingId(null);
     }
   };
 
@@ -672,18 +642,10 @@ export default function MeetingMOM() {
           style={{
             padding: 28,
             marginBottom: 24,
-            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 45%, #EEF2FF 100%)',
+            background: 'var(--oa-hero-grad)',
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: 20,
-              alignItems: 'center',
-              flexWrap: 'wrap',
-            }}
-          >
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
             <div>
               <div
                 style={{
@@ -700,67 +662,29 @@ export default function MeetingMOM() {
                 Meeting Documentation
               </div>
 
-              <h1
-                className="mom-title"
-                style={{
-                  fontSize: 30,
-                  fontWeight: 800,
-                  color: C.textH,
-                  letterSpacing: '-0.8px',
-                  margin: 0,
-                }}
-              >
+              <h1 className="mom-title" style={{ fontSize: 30, fontWeight: 800, color: C.textH, letterSpacing: '-0.8px', margin: 0 }}>
                 Meeting MOM Generator
               </h1>
 
-              <p
-                style={{
-                  fontSize: 14,
-                  color: C.textMuted,
-                  margin: '8px 0 0',
-                  maxWidth: 680,
-                  lineHeight: 1.7,
-                }}
-              >
-                Generate structured MOMs using the standard template format with highlighted
-                decisions, deadlines, owners, action items, and priorities.
+              <p style={{ fontSize: 14, color: C.textMuted, margin: '8px 0 0', maxWidth: 680, lineHeight: 1.7 }}>
+                Select a DOCX template, generate MOM, and preview the exact authenticated PDF output.
               </p>
             </div>
 
-            <div
-              className="mom-stat-grid"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, minmax(90px, 1fr))',
-                gap: 12,
-                minWidth: 320,
-              }}
-            >
+            <div className="mom-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(90px, 1fr))', gap: 12, minWidth: 320 }}>
               <div className="mom-card" style={{ padding: 16 }}>
-                <div style={{ fontSize: 22, fontWeight: 800, color: C.textH }}>
-                  {history.length}
-                </div>
-                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
-                  MOMs
-                </div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.textH }}>{history.length}</div>
+                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>MOMs</div>
               </div>
 
               <div className="mom-card" style={{ padding: 16 }}>
-                <div style={{ fontSize: 22, fontWeight: 800, color: C.primary }}>
-                  {result ? 1 : 0}
-                </div>
-                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
-                  Generated
-                </div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.primary }}>{categories.length}</div>
+                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>Templates</div>
               </div>
 
               <div className="mom-card" style={{ padding: 16 }}>
-                <div style={{ fontSize: 22, fontWeight: 800, color: C.successText }}>
-                  Ready
-                </div>
-                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
-                  Export
-                </div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.successText }}>Exact</div>
+                <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>Preview</div>
               </div>
             </div>
           </div>
@@ -773,49 +697,34 @@ export default function MeetingMOM() {
           </div>
         )}
 
-        <div
-          className="mom-grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(320px, 420px) minmax(0, 1fr)',
-            gap: 22,
-            alignItems: 'start',
-          }}
-        >
+        <div className="mom-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 420px) minmax(0, 1fr)', gap: 22, alignItems: 'start' }}>
           <div>
             <SectionLabel>Create MOM</SectionLabel>
 
             <div className="mom-card" style={{ padding: 22 }}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  gap: 12,
-                  alignItems: 'flex-start',
-                  marginBottom: 18,
-                  flexWrap: 'wrap',
-                }}
-              >
-                <div>
-                  <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 4px', color: C.textH }}>
-                    Generate Minutes of Meeting
-                  </h2>
+              <div style={{ marginBottom: 18 }}>
+                <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 4px', color: C.textH }}>
+                  Generate Minutes of Meeting
+                </h2>
 
-                  <p style={{ fontSize: 12, color: C.textMuted, margin: 0, lineHeight: 1.6 }}>
-                    Add meeting details and raw notes to generate a professional MOM.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  className="mom-btn mom-btn-light"
-                  onClick={downloadTemplate}
-                >
-                  Download Template
-                </button>
+                <p style={{ fontSize: 12, color: C.textMuted, margin: 0, lineHeight: 1.6 }}>
+                  Choose a MOM template file before generating.
+                </p>
               </div>
 
               <form onSubmit={submit}>
+                <div style={{ marginBottom: 15 }}>
+                  <label className="mom-label">MOM Template</label>
+                  <select className="mom-select" name="template_category" value={form.template_category} onChange={handle} required>
+                    <option value="">Select MOM template</option>
+                    {categories.map((file) => (
+                      <option key={file} value={file}>
+                        {displayTemplateName(file)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div style={{ marginBottom: 15 }}>
                   <label className="mom-label">Meeting Title</label>
                   <input
@@ -858,15 +767,10 @@ export default function MeetingMOM() {
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  className="mom-btn mom-btn-primary"
-                  disabled={loading}
-                  style={{ width: '100%' }}
-                >
-                  {loading ? (
+                <button type="submit" className="mom-btn mom-btn-primary" disabled={loading || previewLoading || !form.template_category} style={{ width: '100%' }}>
+                  {loading || previewLoading ? (
                     <>
-                      <span className="mom-spinner" /> Generating MOM...
+                      <span className="mom-spinner" /> {previewLoading ? 'Creating exact preview...' : 'Generating MOM...'}
                     </>
                   ) : (
                     'Generate MOM'
@@ -882,8 +786,15 @@ export default function MeetingMOM() {
                 <SectionLabel>Generated MOM</SectionLabel>
 
                 <div className="mom-card" style={{ padding: 22 }}>
-                  <ProfessionalMOMView mom={result.generated_mom} title={result.meeting_title} />
-                  <ExportButtons id={result.id} />
+                  <ExactPreview pdfUrl={previewBlobUrl} title={result.meeting_title} loading={previewLoading} />
+
+                  <ExportButtons
+                    id={result.id}
+                    templateFilename={result.template_filename || result.template_file || result.template_name}
+                    docxUrl={result.docx_download_url}
+                    pdfUrl={previewPdfUrl}
+                    onPdfReady={setPreviewPdfUrl}
+                  />
                 </div>
               </div>
             )}
@@ -891,22 +802,11 @@ export default function MeetingMOM() {
             <SectionLabel>History</SectionLabel>
 
             <div className="mom-card" style={{ padding: 22 }}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: 16,
-                  gap: 12,
-                }}
-              >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, gap: 12 }}>
                 <div>
-                  <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0, color: C.textH }}>
-                    Recent MOMs
-                  </h2>
-
+                  <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0, color: C.textH }}>Recent MOMs</h2>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>
-                    View, export, or send previously generated MOMs.
+                    View exact preview, export, or send previously generated MOMs.
                   </p>
                 </div>
 
@@ -918,24 +818,10 @@ export default function MeetingMOM() {
               {history.length === 0 ? (
                 <div className="mom-empty-state">No MOMs generated yet</div>
               ) : (
-                <div
-                  className="mom-scroll"
-                  style={{ maxHeight: 560, overflowY: 'auto', paddingRight: 4 }}
-                >
+                <div className="mom-scroll" style={{ maxHeight: 760, overflowY: 'auto', paddingRight: 4 }}>
                   {history.map((h) => (
-                    <div
-                      key={h.id}
-                      className="mom-history-item"
-                      onClick={() => setSelected(selected?.id === h.id ? null : h)}
-                    >
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          gap: 12,
-                          alignItems: 'center',
-                        }}
-                      >
+                    <div key={h.id} className="mom-history-item" onClick={() => openHistoryItem(h)}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
                         <div style={{ minWidth: 0 }}>
                           <div
                             style={{
@@ -971,9 +857,19 @@ export default function MeetingMOM() {
                       </div>
 
                       {selected?.id === h.id && (
-                        <div style={{ marginTop: 16 }}>
-                          <ProfessionalMOMView mom={h.generated_mom} title={h.meeting_title} />
-                          <ExportButtons id={h.id} />
+                        <div style={{ marginTop: 16 }} onClick={(e) => e.stopPropagation()}>
+                          <ExactPreview
+                            pdfUrl={historyPreviewBlobUrl}
+                            title={selected.meeting_title}
+                            loading={historyPreviewLoadingId === h.id}
+                          />
+
+                          <ExportButtons
+                            id={h.id}
+                            templateFilename={h.template_filename || h.template_file || h.template_name}
+                            pdfUrl={selected.previewPdf}
+                            onPdfReady={(url) => setSelected((prev) => ({ ...prev, previewPdf: url }))}
+                          />
                         </div>
                       )}
                     </div>

@@ -4,20 +4,20 @@ import api from '../api';
 import { forceDownload } from '../utils/download';
 
 const C = {
-  pageBg: '#F6F7FB',
-  card: '#FFFFFF',
-  border: '#E6E8F0',
-  textH: '#111827',
-  textB: '#4B5563',
-  textMuted: '#6B7280',
-  textLight: '#9CA3AF',
-  primary: '#4F46E5',
-  primaryDark: '#3730A3',
-  primarySoft: '#EEF2FF',
-  successBg: '#ECFDF5',
-  successText: '#047857',
-  dangerBg: '#FEF2F2',
-  dangerText: '#B91C1C',
+  pageBg: 'var(--oa-page-bg)',
+  card: 'var(--oa-card)',
+  border: 'var(--oa-border)',
+  textH: 'var(--oa-text-h)',
+  textB: 'var(--oa-text-b)',
+  textMuted: 'var(--oa-text-muted)',
+  textLight: 'var(--oa-text-light)',
+  primary: 'var(--oa-primary)',
+  primaryDark: 'var(--oa-primary-dark)',
+  primarySoft: 'var(--oa-primary-soft)',
+  successBg: 'var(--oa-success-bg)',
+  successText: 'var(--oa-success-text)',
+  dangerBg: 'var(--oa-danger-bg)',
+  dangerText: 'var(--oa-danger-text)',
 };
 
 const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
@@ -47,7 +47,7 @@ const GLOBAL_CSS = `
     background: ${C.card};
     border: 1px solid ${C.border};
     border-radius: 20px;
-    box-shadow: 0 16px 40px rgba(17, 24, 39, 0.06);
+    box-shadow: 0 16px 40px rgba(var(--oa-shadow-rgb), 0.06);
     animation: fadeUp 0.3s ease both;
   }
 
@@ -55,7 +55,7 @@ const GLOBAL_CSS = `
   .report-textarea {
     width: 100%;
     border: 1px solid ${C.border};
-    background: #FFFFFF;
+    background: var(--oa-card);
     border-radius: 12px;
     padding: 12px 14px;
     font-size: 13px;
@@ -68,7 +68,7 @@ const GLOBAL_CSS = `
   .report-input:focus,
   .report-textarea:focus {
     border-color: ${C.primary};
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+    box-shadow: 0 0 0 4px rgba(var(--oa-focus-rgb), 0.12);
   }
 
   .report-label {
@@ -99,9 +99,9 @@ const GLOBAL_CSS = `
   }
 
   .report-btn-primary {
-    background: linear-gradient(135deg, #4F46E5, #2563EB);
+    background: var(--oa-btn-grad);
     color: #fff;
-    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.26);
+    box-shadow: 0 10px 24px rgba(var(--oa-focus-rgb), 0.26);
   }
 
   .report-btn-secondary {
@@ -110,7 +110,7 @@ const GLOBAL_CSS = `
   }
 
   .report-btn-light {
-    background: #F9FAFB;
+    background: var(--oa-subtle-bg);
     color: ${C.textB};
     border: 1px solid ${C.border};
   }
@@ -132,7 +132,7 @@ const GLOBAL_CSS = `
     width: 34px;
     height: 3px;
     border-radius: 999px;
-    background: linear-gradient(90deg, #4F46E5, #2563EB);
+    background: var(--oa-bar-grad);
   }
 
   .report-section-label span:last-child {
@@ -144,7 +144,7 @@ const GLOBAL_CSS = `
   }
 
   .professional-report {
-    background: #FFFFFF;
+    background: var(--oa-card);
     border: 1px solid ${C.border};
     border-radius: 18px;
     overflow: hidden;
@@ -155,7 +155,7 @@ const GLOBAL_CSS = `
     align-items: center;
     gap: 14px;
     padding: 20px;
-    background: linear-gradient(135deg, #F8FAFC, #EEF2FF);
+    background: var(--oa-report-top-grad);
     border-bottom: 1px solid ${C.border};
   }
 
@@ -163,7 +163,7 @@ const GLOBAL_CSS = `
     width: 46px;
     height: 46px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #4F46E5, #2563EB);
+    background: var(--oa-icon-grad);
     display: grid;
     place-items: center;
     color: #FFFFFF;
@@ -180,7 +180,7 @@ const GLOBAL_CSS = `
   }
 
   .report-meta-card {
-    background: #F9FAFB;
+    background: var(--oa-subtle-bg);
     border: 1px solid ${C.border};
     border-radius: 14px;
     padding: 13px;
@@ -231,14 +231,14 @@ const GLOBAL_CSS = `
     cursor: pointer;
     margin-bottom: 10px;
     border: 1px solid ${C.border};
-    background: #FFFFFF;
+    background: var(--oa-card);
     transition: 0.18s ease;
   }
 
   .report-history-item:hover {
-    background: #F8FAFC;
+    background: var(--oa-subtle-bg);
     transform: translateY(-1px);
-    box-shadow: 0 10px 22px rgba(17, 24, 39, 0.05);
+    box-shadow: 0 10px 22px var(--oa-hover-shadow);
   }
 
   .report-alert {
@@ -249,7 +249,7 @@ const GLOBAL_CSS = `
     margin-bottom: 16px;
     font-size: 13px;
     font-weight: 700;
-    border: 1px solid #FECACA;
+    border: 1px solid var(--oa-danger-bg);
   }
 
   .report-spinner {
@@ -266,7 +266,7 @@ const GLOBAL_CSS = `
   }
 
   .report-scroll::-webkit-scrollbar-thumb {
-    background: #CBD5E1;
+    background: var(--oa-thumb);
     border-radius: 999px;
   }
 
@@ -516,7 +516,7 @@ export default function DailyReport() {
             padding: 28,
             marginBottom: 24,
             background:
-              'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 45%, #EEF2FF 100%)',
+              'var(--oa-hero-grad)',
           }}
         >
           <div
@@ -753,7 +753,7 @@ export default function DailyReport() {
                     textAlign: 'center',
                     color: C.textLight,
                     fontSize: 13,
-                    background: '#F9FAFB',
+                    background: 'var(--oa-subtle-bg)',
                     borderRadius: 18,
                     border: `1px dashed ${C.border}`,
                   }}

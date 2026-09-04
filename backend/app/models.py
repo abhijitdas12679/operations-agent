@@ -1,6 +1,14 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Text,
+    DateTime,
+    ForeignKey,
+    Boolean,
+)
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -54,6 +62,11 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+    templates = relationship(
+        "CommunicationTemplate",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
 
 class PasswordResetToken(Base):
@@ -104,6 +117,9 @@ class EmailHistory(Base):
     context = Column(Text, nullable=True)
     generated_email = Column(Text, nullable=True)
 
+    template_id = Column(Integer, ForeignKey("template_library.id"), nullable=True)
+    template_name = Column(String(255), nullable=True)
+
     batch_id = Column(String(100), nullable=True)
     status = Column(String(30), default="draft")
     sent_time = Column(DateTime, nullable=True)
@@ -112,6 +128,7 @@ class EmailHistory(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="emails")
+    template = relationship("TemplateLibrary", back_populates="email_histories")
 
 
 class ReportHistory(Base):
@@ -126,9 +143,13 @@ class ReportHistory(Base):
     blockers = Column(Text, nullable=True)
     generated_report = Column(Text, nullable=True)
 
+    template_id = Column(Integer, ForeignKey("template_library.id"), nullable=True)
+    template_name = Column(String(255), nullable=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="reports")
+    template = relationship("TemplateLibrary", back_populates="report_histories")
 
 
 class MeetingHistory(Base):
@@ -142,9 +163,63 @@ class MeetingHistory(Base):
     raw_notes = Column(Text, nullable=True)
     generated_mom = Column(Text, nullable=True)
 
+    template_id = Column(Integer, ForeignKey("template_library.id"), nullable=True)
+    template_name = Column(String(255), nullable=True)
+
+    mom_pdf_path = Column(String(500), nullable=True)
+    mom_docx_path = Column(String(500), nullable=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user = relationship("User", back_populates="meetings")
+    template = relationship("TemplateLibrary", back_populates="meeting_histories")
+
+
+class CommunicationTemplate(Base):
+    __tablename__ = "communication_templates"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    template_type = Column(String(50), nullable=False, default="meeting_mom")
+    name = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+
+    meeting_title = Column(String(300), nullable=True)
+    attendees = Column(Text, nullable=True)
+    raw_notes = Column(Text, nullable=True)
+    template_content = Column(Text, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", back_populates="templates")
+
+
+class TemplateLibrary(Base):
+    __tablename__ = "template_library"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    template_type = Column(String(50), nullable=False, index=True)
+    category = Column(String(100), nullable=True, index=True)
+    template_name = Column(String(255), nullable=False, index=True)
+
+    subject_template = Column(Text, nullable=True)
+    body_template = Column(Text, nullable=False)
+    placeholders = Column(Text, nullable=True)
+    source_file = Column(String(255), nullable=True)
+    description = Column(Text, nullable=True)
+    tags = Column(Text, nullable=True)
+    is_active = Column(Boolean, default=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    email_histories = relationship("EmailHistory", back_populates="template")
+    report_histories = relationship("ReportHistory", back_populates="template")
+    meeting_histories = relationship("MeetingHistory", back_populates="template")
 
 
 class Task(Base):
@@ -295,12 +370,7 @@ class TaskChecklistItem(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     task_id = Column(Integer, ForeignKey("tasks.id"), nullable=False)
-
-    parent_checklist_id = Column(
-        Integer,
-        ForeignKey("task_checklist_items.id"),
-        nullable=True,
-    )
+    parent_checklist_id = Column(Integer, ForeignKey("task_checklist_items.id"), nullable=True)
 
     title = Column(String(300), nullable=False)
     is_completed = Column(Integer, default=0)
@@ -308,10 +378,7 @@ class TaskChecklistItem(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    task = relationship(
-        "Task",
-        back_populates="checklist_items",
-    )
+    task = relationship("Task", back_populates="checklist_items")
 
     parent = relationship(
         "TaskChecklistItem",

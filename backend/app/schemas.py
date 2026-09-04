@@ -63,11 +63,18 @@ class UserProfileOut(BaseModel):
 
 
 class EmailGenerateRequest(BaseModel):
-    subject: str
+    subject: Optional[str] = ""
     recipient: str
     recipient_email: EmailStr
     tone: str = "professional"
     context: str
+
+    template_id: Optional[int] = None
+    template_name: Optional[str] = None
+    template_category: Optional[str] = None
+    template_file: Optional[str] = None
+    template_content: Optional[str] = None
+    dynamic_fields: Optional[dict] = None
 
 
 class EmailContentUpdateRequest(BaseModel):
@@ -92,6 +99,11 @@ class EmailGenerateResponse(BaseModel):
     sent_time: Optional[datetime]
     error_message: Optional[str]
     created_at: datetime
+
+    template_id: Optional[int] = None
+    template_name: Optional[str] = None
+    template_category: Optional[str] = None
+    template_file: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -123,11 +135,18 @@ class ReportGenerateRequest(BaseModel):
     tasks_completed: str
     blockers: Optional[str] = "None"
 
+    template_id: Optional[int] = None
+    template_name: Optional[str] = None
+    dynamic_fields: Optional[dict] = None
+
 
 class ReportGenerateResponse(BaseModel):
     id: int
     generated_report: str
     created_at: datetime
+
+    template_id: Optional[int] = None
+    template_name: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -138,11 +157,113 @@ class MeetingMOMRequest(BaseModel):
     attendees: str
     raw_notes: str
 
+    template_category: Optional[str] = None
+    template_filename: Optional[str] = None
+    template_file: Optional[str] = None
+    template_content: Optional[str] = None
+
+    template_id: Optional[int] = None
+    template_name: Optional[str] = None
+    dynamic_fields: Optional[dict] = None
+
 
 class MeetingMOMResponse(BaseModel):
     id: int
+    meeting_title: Optional[str] = None
+    attendees: Optional[str] = None
     generated_mom: str
     created_at: datetime
+
+    template_id: Optional[int] = None
+    template_name: Optional[str] = None
+    template_category: Optional[str] = None
+    template_filename: Optional[str] = None
+    template_file: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class TemplateCreate(BaseModel):
+    template_type: str = "meeting_mom"
+    name: str
+    description: Optional[str] = ""
+    meeting_title: Optional[str] = ""
+    attendees: Optional[str] = ""
+    raw_notes: Optional[str] = ""
+    template_content: Optional[str] = ""
+
+
+class TemplateUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    meeting_title: Optional[str] = None
+    attendees: Optional[str] = None
+    raw_notes: Optional[str] = None
+    template_content: Optional[str] = None
+
+
+class TemplateOut(BaseModel):
+    id: int
+    template_type: str
+    name: str
+    description: Optional[str]
+    meeting_title: Optional[str]
+    attendees: Optional[str]
+    raw_notes: Optional[str]
+    template_content: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class TemplateLibraryBase(BaseModel):
+    template_type: str
+    category: Optional[str] = None
+    template_name: str
+    subject_template: Optional[str] = None
+    body_template: str
+    placeholders: Optional[str] = None
+    source_file: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[str] = None
+    is_active: bool = True
+
+
+class TemplateLibraryCreate(TemplateLibraryBase):
+    pass
+
+
+class TemplateLibraryUpdate(BaseModel):
+    category: Optional[str] = None
+    template_name: Optional[str] = None
+    subject_template: Optional[str] = None
+    body_template: Optional[str] = None
+    placeholders: Optional[str] = None
+    source_file: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class TemplateLibraryResponse(TemplateLibraryBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class TemplateLibrarySearchResponse(BaseModel):
+    id: int
+    template_type: str
+    category: Optional[str] = None
+    template_name: str
+    subject_template: Optional[str] = None
+    placeholders: Optional[str] = None
 
     class Config:
         from_attributes = True

@@ -1,4 +1,5 @@
 import mimetypes
+import os
 import re
 from pathlib import Path
 from urllib.parse import quote
@@ -11,9 +12,11 @@ from app import models, schemas
 from app.auth import get_current_user
 from app.database import get_db
 from app.services.document_export_service import (
+    convert_docx_to_pdf,
     create_professional_docx,
     create_professional_pdf,
 )
+from app.services.mom_docx_template_service import build_basic_mom_docx_from_template
 from app.tools.document_tool import export_to_docx
 from app.tools.pdf_tool import export_to_pdf
 from app.utils.helpers import get_download_url
@@ -22,10 +25,10 @@ router = APIRouter(prefix="/documents", tags=["Documents"])
 
 
 def safe_filename(name: str) -> str:
-    name = name.strip()
+    name = str(name or "").strip()
     name = re.sub(r'[<>:"/\\|?*]', "_", name)
     name = re.sub(r"\s+", " ", name)
-    return name[:120]
+    return name[:120] or "document"
 
 
 def rename_file_with_title(file_path: str, title: str) -> str:
@@ -35,13 +38,12 @@ def rename_file_with_title(file_path: str, title: str) -> str:
         return file_path
 
     ext = old_path.suffix
-    new_name = f"{safe_filename(title)}{ext}"
-    new_path = old_path.parent / new_name
+    safe_title = safe_filename(title)
+    new_path = old_path.parent / f"{safe_title}{ext}"
 
     counter = 1
     while new_path.exists():
-        new_name = f"{safe_filename(title)}_{counter}{ext}"
-        new_path = old_path.parent / new_name
+        new_path = old_path.parent / f"{safe_title}_{counter}{ext}"
         counter += 1
 
     old_path.rename(new_path)
@@ -68,8 +70,8 @@ def _get_content(
             raise HTTPException(status_code=404, detail="Email not found")
 
         return (
-            rec.generated_email,
-            f"Email - {rec.subject}",
+            rec.generated_email or "",
+            f"Email - {rec.subject or 'Untitled'}",
             {
                 "subject": rec.subject,
                 "recipient": rec.recipient,
@@ -91,11 +93,12 @@ def _get_content(
             raise HTTPException(status_code=404, detail="Report not found")
 
         return (
-            rec.generated_report,
-            f"Daily Report - {rec.team_name} - {rec.date}",
+            rec.generated_report or "",
+            f"Daily Report - {rec.team_name or 'Team'} - {rec.date or ''}".strip(),
             {
                 "date": rec.date,
                 "team_name": rec.team_name,
+                "template_name": getattr(rec, "template_name", None),
             },
         )
 
@@ -113,11 +116,14 @@ def _get_content(
             raise HTTPException(status_code=404, detail="Meeting not found")
 
         return (
-            rec.generated_mom,
-            f"MOM - {rec.meeting_title}",
+            rec.generated_mom or "",
+            f"MOM - {rec.meeting_title or 'Meeting'}",
             {
                 "meeting_title": rec.meeting_title,
                 "attendees": rec.attendees,
+                "raw_notes": getattr(rec, "raw_notes", ""),
+                "template_name": getattr(rec, "template_name", None),
+                "created_at": getattr(rec, "created_at", None),
             },
         )
 
@@ -135,18 +141,18 @@ def _get_content(
             raise HTTPException(status_code=404, detail="Task not found")
 
         content = (
-            f"Task: {rec.title}\n"
-            f"Description: {rec.description}\n"
-            f"Assigned To: {rec.assigned_to}\n"
-            f"Priority: {rec.priority}\n"
-            f"Status: {rec.status}\n"
-            f"Due Date: {rec.due_date}\n\n"
-            f"Reminder:\n{rec.reminder_message}"
+            f"Task: {rec.title or ''}\n"
+            f"Description: {rec.description or ''}\n"
+            f"Assigned To: {rec.assigned_to or ''}\n"
+            f"Priority: {rec.priority or ''}\n"
+            f"Status: {rec.status or ''}\n"
+            f"Due Date: {rec.due_date or ''}\n\n"
+            f"Reminder:\n{rec.reminder_message or ''}"
         )
 
         return (
             content,
-            f"Task - {rec.title}",
+            f"Task - {rec.title or 'Untitled'}",
             {
                 "task_title": rec.title,
                 "assigned_to": rec.assigned_to,
@@ -155,6 +161,28 @@ def _get_content(
         )
 
     raise HTTPException(status_code=400, detail="Invalid doc_type")
+
+
+def build_meeting_docx_from_template(meta: dict, current_user: models.User) -> str:
+    template_name = meta.get("template_name")
+
+    if not template_name:
+        raise HTTPException(
+            status_code=400,
+            detail="No MOM template was saved for this meeting",
+        )
+
+    created_at = meta.get("created_at")
+    meeting_date = created_at.strftime("%d %b %Y") if created_at else ""
+
+    return build_basic_mom_docx_from_template(
+        template_filename=template_name,
+        meeting_title=meta.get("meeting_title") or "Meeting",
+        attendees=meta.get("attendees") or "",
+        raw_notes=meta.get("raw_notes") or "",
+        prepared_by=current_user.full_name or current_user.username or "User",
+        meeting_date=meeting_date,
+    )
 
 
 @router.post("/export-docx", response_model=schemas.ExportResponse)
@@ -176,8 +204,16 @@ def export_docx(
             date=meta.get("date", ""),
             team_name=meta.get("team_name", ""),
         )
+
+    elif req.doc_type == "meeting" and meta.get("template_name"):
+        file_path = build_meeting_docx_from_template(meta, current_user)
+
     else:
-        file_path = export_to_docx(content, req.doc_type, title)
+        file_path = export_to_docx(
+            content=content,
+            doc_type=req.doc_type,
+            title=title,
+        )
 
     file_path = rename_file_with_title(file_path, title)
 
@@ -216,8 +252,17 @@ def export_pdf(
             date=meta.get("date", ""),
             team_name=meta.get("team_name", ""),
         )
+
+    elif req.doc_type == "meeting" and meta.get("template_name"):
+        docx_path = build_meeting_docx_from_template(meta, current_user)
+        file_path = convert_docx_to_pdf(docx_path)
+
     else:
-        file_path = export_to_pdf(content, req.doc_type, title)
+        file_path = export_to_pdf(
+            content=content,
+            doc_type=req.doc_type,
+            title=title,
+        )
 
     file_path = rename_file_with_title(file_path, title)
 

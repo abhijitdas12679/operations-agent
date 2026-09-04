@@ -3,20 +3,20 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api';
 
 const C = {
-  pageBg: '#F6F7FB',
-  card: '#FFFFFF',
-  border: '#E6E8F0',
-  textH: '#111827',
-  textB: '#4B5563',
-  textMuted: '#6B7280',
-  textLight: '#9CA3AF',
-  primary: '#4F46E5',
-  primaryDark: '#3730A3',
-  primarySoft: '#EEF2FF',
-  successBg: '#ECFDF5',
-  successText: '#047857',
-  dangerBg: '#FEF2F2',
-  dangerText: '#B91C1C',
+  pageBg: 'var(--oa-page-bg)',
+  card: 'var(--oa-card)',
+  border: 'var(--oa-border)',
+  textH: 'var(--oa-text-h)',
+  textB: 'var(--oa-text-b)',
+  textMuted: 'var(--oa-text-muted)',
+  textLight: 'var(--oa-text-light)',
+  primary: 'var(--oa-primary)',
+  primaryDark: 'var(--oa-primary-dark)',
+  primarySoft: 'var(--oa-primary-soft)',
+  successBg: 'var(--oa-success-bg)',
+  successText: 'var(--oa-success-text)',
+  dangerBg: 'var(--oa-danger-bg)',
+  dangerText: 'var(--oa-danger-text)',
 };
 
 const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
@@ -36,7 +36,7 @@ const GLOBAL_CSS = `
   .reset-input {
     width: 100%;
     border: 1px solid ${C.border};
-    background: #FFFFFF;
+    background: var(--oa-card);
     border-radius: 12px;
     padding: 12px 14px;
     font-size: 13px;
@@ -48,7 +48,7 @@ const GLOBAL_CSS = `
 
   .reset-input:focus {
     border-color: ${C.primary};
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+    box-shadow: 0 0 0 4px rgba(var(--oa-focus-rgb), 0.12);
   }
 
   .reset-label {
@@ -77,7 +77,7 @@ const GLOBAL_CSS = `
   .reset-btn-primary {
     background: linear-gradient(135deg, #4F46E5, #2563EB);
     color: #fff;
-    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.26);
+    box-shadow: 0 10px 24px rgba(var(--oa-focus-rgb), 0.26);
   }
 
   .reset-btn:disabled {
@@ -100,13 +100,13 @@ const GLOBAL_CSS = `
   .reset-alert-error {
     background: ${C.dangerBg};
     color: ${C.dangerText};
-    border-color: #FECACA;
+    border-color: var(--oa-danger-bg);
   }
 
   .reset-alert-success {
     background: ${C.successBg};
     color: ${C.successText};
-    border-color: #A7F3D0;
+    border-color: var(--oa-success-bg);
   }
 
   @media (max-width: 900px) {
@@ -205,14 +205,14 @@ export default function ResetPassword() {
             overflow: 'hidden',
             background: C.card,
             border: `1px solid ${C.border}`,
-            boxShadow: '0 24px 70px rgba(17, 24, 39, 0.10)',
+            boxShadow: '0 24px 70px rgba(var(--oa-shadow-rgb), 0.10)',
           }}
         >
           <div
             className="reset-left"
             style={{
               padding: 42,
-              background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 45%, #EEF2FF 100%)',
+              background: 'var(--oa-hero-grad)',
               borderRight: `1px solid ${C.border}`,
               display: 'flex',
               flexDirection: 'column',
@@ -278,7 +278,7 @@ export default function ResetPassword() {
                 <div
                   key={bottom}
                   style={{
-                    background: '#FFFFFF',
+                    background: 'var(--oa-card-inner)',
                     border: `1px solid ${C.border}`,
                     borderRadius: 18,
                     padding: 16,
@@ -300,14 +300,14 @@ export default function ResetPassword() {
                   width: 58,
                   height: 58,
                   borderRadius: 18,
-                  background: 'linear-gradient(135deg,#4F46E5,#2563EB)',
+                  background: 'var(--oa-icon-grad)',
                   color: '#fff',
                   display: 'grid',
                   placeItems: 'center',
                   fontSize: 18,
                   fontWeight: 900,
                   margin: '0 auto 14px',
-                  boxShadow: '0 12px 28px rgba(79,70,229,0.28)',
+                  boxShadow: '0 12px 28px rgba(var(--oa-focus-rgb), 0.28)',
                 }}
               >
                 PW

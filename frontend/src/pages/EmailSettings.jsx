@@ -2,22 +2,22 @@ import React, { useEffect, useState } from 'react';
 import api from '../api';
 
 const C = {
-  pageBg: '#F6F7FB',
-  card: '#FFFFFF',
-  border: '#E6E8F0',
-  textH: '#111827',
-  textB: '#4B5563',
-  textMuted: '#6B7280',
-  textLight: '#9CA3AF',
-  primary: '#4F46E5',
-  primaryDark: '#3730A3',
-  primarySoft: '#EEF2FF',
-  successBg: '#ECFDF5',
-  successText: '#047857',
-  dangerBg: '#FEF2F2',
-  dangerText: '#B91C1C',
-  warningBg: '#FFFBEB',
-  warningText: '#92400E',
+  pageBg: 'var(--oa-page-bg)',
+  card: 'var(--oa-card)',
+  border: 'var(--oa-border)',
+  textH: 'var(--oa-text-h)',
+  textB: 'var(--oa-text-b)',
+  textMuted: 'var(--oa-text-muted)',
+  textLight: 'var(--oa-text-light)',
+  primary: 'var(--oa-primary)',
+  primaryDark: 'var(--oa-primary-dark)',
+  primarySoft: 'var(--oa-primary-soft)',
+  successBg: 'var(--oa-success-bg)',
+  successText: 'var(--oa-success-text)',
+  dangerBg: 'var(--oa-danger-bg)',
+  dangerText: 'var(--oa-danger-text)',
+  warningBg: 'var(--oa-warning-bg)',
+  warningText: 'var(--oa-warning-text)',
 };
 
 const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
@@ -43,7 +43,7 @@ const GLOBAL_CSS = `
     background: ${C.card};
     border: 1px solid ${C.border};
     border-radius: 20px;
-    box-shadow: 0 16px 40px rgba(17, 24, 39, 0.06);
+    box-shadow: 0 16px 40px rgba(var(--oa-shadow-rgb), 0.06);
     animation: fadeUp 0.3s ease both;
   }
 
@@ -51,7 +51,7 @@ const GLOBAL_CSS = `
   .smtp-select {
     width: 100%;
     border: 1px solid ${C.border};
-    background: #FFFFFF;
+    background: var(--oa-card);
     border-radius: 12px;
     padding: 12px 14px;
     font-size: 13px;
@@ -64,7 +64,7 @@ const GLOBAL_CSS = `
   .smtp-input:focus,
   .smtp-select:focus {
     border-color: ${C.primary};
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+    box-shadow: 0 0 0 4px rgba(var(--oa-focus-rgb), 0.12);
   }
 
   .smtp-label {
@@ -97,7 +97,7 @@ const GLOBAL_CSS = `
   .smtp-btn-primary {
     background: linear-gradient(135deg, #4F46E5, #2563EB);
     color: #fff;
-    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.26);
+    box-shadow: 0 10px 24px rgba(var(--oa-focus-rgb), 0.26);
   }
 
   .smtp-btn-secondary {
@@ -111,7 +111,7 @@ const GLOBAL_CSS = `
   }
 
   .smtp-btn-light {
-    background: #F9FAFB;
+    background: var(--oa-subtle-bg);
     color: ${C.textB};
     border: 1px solid ${C.border};
   }
@@ -133,7 +133,7 @@ const GLOBAL_CSS = `
     width: 34px;
     height: 3px;
     border-radius: 999px;
-    background: linear-gradient(90deg, #4F46E5, #2563EB);
+    background: var(--oa-bar-grad);
   }
 
   .smtp-section-label span:last-child {
@@ -159,23 +159,23 @@ const GLOBAL_CSS = `
   .smtp-alert-success {
     background: ${C.successBg};
     color: ${C.successText};
-    border-color: #A7F3D0;
+    border-color: var(--oa-success-bg);
   }
 
   .smtp-alert-warning {
     background: ${C.warningBg};
     color: ${C.warningText};
-    border-color: #FDE68A;
+    border-color: var(--oa-warning-bg);
   }
 
   .smtp-alert-info {
     background: ${C.primarySoft};
     color: ${C.primaryDark};
-    border-color: #C7D2FE;
+    border-color: var(--oa-primary-soft);
   }
 
   .smtp-info-box {
-    background: #FFFFFF;
+    background: var(--oa-card);
     border: 1px solid ${C.border};
     border-radius: 18px;
     padding: 18px;
@@ -193,7 +193,7 @@ const GLOBAL_CSS = `
   .smtp-guide-values {
     margin-top: 14px;
     padding: 14px;
-    background: #F9FAFB;
+    background: var(--oa-subtle-bg);
     border-radius: 14px;
     border: 1px solid ${C.border};
     font-size: 13px;
@@ -205,7 +205,7 @@ const GLOBAL_CSS = `
     margin-top: 10px;
     padding: 11px 13px;
     background: ${C.primarySoft};
-    border: 1px solid #C7D2FE;
+    border: 1px solid var(--oa-primary-soft);
     border-radius: 13px;
     color: ${C.primaryDark};
     font-size: 12px;
@@ -217,7 +217,7 @@ const GLOBAL_CSS = `
     margin-top: 10px;
     padding: 11px 13px;
     background: ${C.warningBg};
-    border: 1px solid #FDE68A;
+    border: 1px solid var(--oa-warning-bg);
     border-radius: 13px;
     color: ${C.warningText};
     font-size: 12px;
@@ -388,7 +388,7 @@ export default function EmailSettings() {
           style={{
             padding: 28,
             marginBottom: 24,
-            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 45%, #EEF2FF 100%)',
+            background: 'var(--oa-hero-grad)',
           }}
         >
           <div>

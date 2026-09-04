@@ -3,20 +3,20 @@ import { useParams } from "react-router-dom";
 import api from "../api";
 
 const C = {
-  pageBg: "#F6F7FB",
-  card: "#FFFFFF",
-  border: "#E6E8F0",
-  textH: "#111827",
-  textB: "#4B5563",
-  textMuted: "#6B7280",
-  textLight: "#9CA3AF",
-  primary: "#4F46E5",
-  primaryDark: "#3730A3",
-  primarySoft: "#EEF2FF",
-  success: "#047857",
-  successBg: "#ECFDF5",
-  error: "#B91C1C",
-  errorBg: "#FEF2F2",
+  pageBg: "var(--oa-page-bg)",
+  card: "var(--oa-card)",
+  border: "var(--oa-border)",
+  textH: "var(--oa-text-h)",
+  textB: "var(--oa-text-b)",
+  textMuted: "var(--oa-text-muted)",
+  textLight: "var(--oa-text-light)",
+  primary: "var(--oa-primary)",
+  primaryDark: "var(--oa-primary-dark)",
+  primarySoft: "var(--oa-primary-soft)",
+  success: "var(--oa-success-text)",
+  successBg: "var(--oa-success-bg)",
+  error: "var(--oa-danger-text)",
+  errorBg: "var(--oa-danger-bg)",
 };
 
 const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
@@ -406,7 +406,7 @@ const styles = {
     border: `1px solid ${C.border}`,
     borderRadius: 24,
     padding: 28,
-    boxShadow: "0 16px 40px rgba(17, 24, 39, 0.06)",
+    boxShadow: "0 16px 40px rgba(var(--oa-shadow-rgb), 0.06)",
     flexWrap: "wrap",
   },
   eyebrow: {
@@ -443,14 +443,14 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     gap: 4,
-    boxShadow: "0 12px 28px rgba(79,70,229,0.28)",
+    boxShadow: "0 12px 28px rgba(var(--oa-focus-rgb), 0.28)",
   },
   card: {
     background: C.card,
     borderRadius: 20,
     padding: 24,
     border: `1px solid ${C.border}`,
-    boxShadow: "0 16px 40px rgba(17, 24, 39, 0.06)",
+    boxShadow: "0 16px 40px rgba(var(--oa-shadow-rgb), 0.06)",
     marginBottom: 18,
   },
   cardHeader: {
@@ -524,13 +524,13 @@ const styles = {
     whiteSpace: "pre-wrap",
     lineHeight: 1.75,
     fontSize: 14,
-    background: "#F9FAFB",
+    background: "var(--oa-subtle-bg)",
     border: `1px solid ${C.border}`,
     borderRadius: 16,
     padding: 16,
   },
   checklistBox: {
-    background: "#F9FAFB",
+    background: "var(--oa-subtle-bg)",
     border: `1px solid ${C.border}`,
     borderRadius: 16,
     padding: 16,
@@ -637,7 +637,7 @@ const styles = {
     fontWeight: 700,
   },
   updateBox: {
-    background: "#F9FAFB",
+    background: "var(--oa-subtle-bg)",
     borderRadius: 16,
     padding: 16,
     marginTop: 10,
@@ -672,7 +672,7 @@ const styles = {
     marginBottom: 14,
     fontSize: 13,
     fontWeight: 700,
-    border: "1px solid #A7F3D0",
+    border: "1px solid var(--oa-success-bg)",
   },
   error: {
     background: C.errorBg,
@@ -682,7 +682,7 @@ const styles = {
     marginBottom: 14,
     fontSize: 13,
     fontWeight: 700,
-    border: "1px solid #FECACA",
+    border: "1px solid var(--oa-danger-bg)",
   },
   errorText: {
     color: C.error,

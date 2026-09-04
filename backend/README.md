@@ -1,17 +1,12 @@
-# Backend – Operations Agent API
+---
+title: Operations Agent Backend
+emoji: ??
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+---
 
-FastAPI + CrewAI + MySQL backend.
+# Operations Agent Backend
 
-## Quick Start
-
-```bash
-py -3.11 -m venv venv
-venv\Scripts\activate        # Windows
-source venv/bin/activate      # Mac/Linux
-pip install -r requirements.txt
-cp .env.example .env          # Fill in your values
-uvicorn app.main:app --reload
-```
-
-API: http://localhost:8000  
-Docs: http://localhost:8000/docs
+FastAPI backend for Operations Agent.

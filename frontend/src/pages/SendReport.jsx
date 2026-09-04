@@ -3,20 +3,19 @@ import { useSearchParams } from 'react-router-dom';
 import api from '../api';
 
 const C = {
-  pageBg: '#F6F7FB',
-  card: '#FFFFFF',
-  border: '#E6E8F0',
-  textH: '#111827',
-  textB: '#4B5563',
-  textMuted: '#6B7280',
-  textLight: '#9CA3AF',
-  primary: '#4F46E5',
-  primaryDark: '#3730A3',
-  primarySoft: '#EEF2FF',
-  successBg: '#ECFDF5',
-  successText: '#047857',
-  dangerBg: '#FEF2F2',
-  dangerText: '#B91C1C',
+  pageBg: 'var(--oa-page-bg)',
+  card: 'var(--oa-card)',
+  border: 'var(--oa-border)',
+  textH: 'var(--oa-text-h)',
+  textB: 'var(--oa-text-b)',
+  textMuted: 'var(--oa-text-muted)',
+  primary: 'var(--oa-primary)',
+  primaryDark: 'var(--oa-primary-dark)',
+  primarySoft: 'var(--oa-primary-soft)',
+  successBg: 'var(--oa-success-bg)',
+  successText: 'var(--oa-success-text)',
+  dangerBg: 'var(--oa-danger-bg)',
+  dangerText: 'var(--oa-danger-text)',
 };
 
 const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
@@ -38,19 +37,42 @@ const GLOBAL_CSS = `
     to { opacity: 1; transform: translateY(0); }
   }
 
+  .send-report-page {
+    min-height: 100vh;
+    background: ${C.pageBg};
+    font-family: ${FONT};
+    padding: 32px 36px 64px;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+
   .send-report-card {
     background: ${C.card};
     border: 1px solid ${C.border};
     border-radius: 20px;
-    box-shadow: 0 16px 40px rgba(17, 24, 39, 0.06);
+    box-shadow: 0 16px 40px rgba(var(--oa-shadow-rgb), 0.08);
     animation: fadeUp 0.3s ease both;
+    transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  }
+
+  .send-report-hero {
+    padding: 28px;
+    margin-bottom: 24px;
+    background:
+      radial-gradient(circle at top right, rgba(var(--oa-focus-rgb), 0.16), transparent 34%),
+      linear-gradient(135deg, var(--oa-card) 0%, var(--oa-card) 55%, var(--oa-subtle-bg) 100%);
+  }
+
+  .send-report-stat-card {
+    padding: 16px;
+    background: var(--oa-card);
+    border: 1px solid ${C.border};
   }
 
   .send-report-input,
   .send-report-select {
     width: 100%;
     border: 1px solid ${C.border};
-    background: #FFFFFF;
+    background: var(--oa-card);
     border-radius: 12px;
     padding: 12px 14px;
     font-size: 13px;
@@ -60,10 +82,19 @@ const GLOBAL_CSS = `
     transition: 0.18s ease;
   }
 
+  .send-report-select option {
+    background: var(--oa-card);
+    color: ${C.textH};
+  }
+
+  .send-report-input::placeholder {
+    color: ${C.textMuted};
+  }
+
   .send-report-input:focus,
   .send-report-select:focus {
     border-color: ${C.primary};
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+    box-shadow: 0 0 0 4px rgba(var(--oa-focus-rgb), 0.12);
   }
 
   .send-report-label {
@@ -96,7 +127,7 @@ const GLOBAL_CSS = `
   .send-report-btn-primary {
     background: linear-gradient(135deg, #4F46E5, #2563EB);
     color: #fff;
-    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.26);
+    box-shadow: 0 10px 24px rgba(var(--oa-focus-rgb), 0.26);
   }
 
   .send-report-btn-secondary {
@@ -110,7 +141,7 @@ const GLOBAL_CSS = `
   }
 
   .send-report-btn-light {
-    background: #F9FAFB;
+    background: var(--oa-subtle-bg);
     color: ${C.textB};
     border: 1px solid ${C.border};
   }
@@ -148,7 +179,7 @@ const GLOBAL_CSS = `
     grid-template-columns: 42px 1fr 1fr 1.2fr 42px;
     gap: 12px;
     align-items: end;
-    background: #FFFFFF;
+    background: var(--oa-card);
     border: 1px solid ${C.border};
     border-radius: 16px;
     padding: 14px;
@@ -157,8 +188,8 @@ const GLOBAL_CSS = `
   }
 
   .recipient-row:hover {
-    background: #F8FAFC;
-    box-shadow: 0 10px 22px rgba(17, 24, 39, 0.04);
+    background: var(--oa-subtle-bg);
+    box-shadow: 0 10px 22px rgba(var(--oa-shadow-rgb), 0.08);
   }
 
   .recipient-number {
@@ -175,7 +206,7 @@ const GLOBAL_CSS = `
   }
 
   .selected-excel-box {
-    background: #F9FAFB;
+    background: var(--oa-subtle-bg);
     border: 1px solid ${C.border};
     border-radius: 16px;
     padding: 16px;
@@ -201,13 +232,13 @@ const GLOBAL_CSS = `
   .send-report-alert-success {
     background: ${C.successBg};
     color: ${C.successText};
-    border-color: #A7F3D0;
+    border-color: var(--oa-success-bg);
   }
 
   .send-report-alert-error {
     background: ${C.dangerBg};
     color: ${C.dangerText};
-    border-color: #FECACA;
+    border-color: var(--oa-danger-bg);
   }
 
   @media (max-width: 900px) {
@@ -216,7 +247,7 @@ const GLOBAL_CSS = `
     }
 
     .send-report-page {
-      padding: 24px 18px 48px !important;
+      padding: 24px 18px 48px;
     }
 
     .send-report-stats {
@@ -393,23 +424,8 @@ export default function SendReport() {
     <>
       <style>{GLOBAL_CSS}</style>
 
-      <div
-        className="send-report-page"
-        style={{
-          minHeight: '100vh',
-          background: C.pageBg,
-          fontFamily: FONT,
-          padding: '32px 36px 64px',
-        }}
-      >
-        <div
-          className="send-report-card"
-          style={{
-            padding: 28,
-            marginBottom: 24,
-            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 45%, #EEF2FF 100%)',
-          }}
-        >
+      <div className="send-report-page">
+        <div className="send-report-card send-report-hero">
           <div
             style={{
               display: 'flex',
@@ -470,7 +486,7 @@ export default function SendReport() {
                 minWidth: 340,
               }}
             >
-              <div className="send-report-card" style={{ padding: 16 }}>
+              <div className="send-report-card send-report-stat-card">
                 <div style={{ fontSize: 22, fontWeight: 800, color: C.textH }}>
                   {history.length}
                 </div>
@@ -479,7 +495,7 @@ export default function SendReport() {
                 </div>
               </div>
 
-              <div className="send-report-card" style={{ padding: 16 }}>
+              <div className="send-report-card send-report-stat-card">
                 <div style={{ fontSize: 22, fontWeight: 800, color: C.primary }}>
                   {recipients.filter((r) => r.email.trim()).length}
                 </div>
@@ -488,8 +504,14 @@ export default function SendReport() {
                 </div>
               </div>
 
-              <div className="send-report-card" style={{ padding: 16 }}>
-                <div style={{ fontSize: 22, fontWeight: 800, color: file ? C.successText : C.textH }}>
+              <div className="send-report-card send-report-stat-card">
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 800,
+                    color: file ? C.successText : C.textH,
+                  }}
+                >
                   {file ? 'Excel' : 'Manual'}
                 </div>
                 <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>
@@ -586,7 +608,8 @@ export default function SendReport() {
                 <span style={{ color: C.textB }}>{file.name}</span>
 
                 <p style={{ color: C.textMuted, fontSize: 12, margin: '5px 0 0' }}>
-                  Required columns: <b>name</b>, <b>email</b>, <b>position</b> or <b>designation</b>.
+                  Required columns: <b>name</b>, <b>email</b>, <b>position</b> or{' '}
+                  <b>designation</b>.
                 </p>
               </div>
 

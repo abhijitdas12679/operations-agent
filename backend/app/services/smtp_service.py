@@ -27,28 +27,46 @@ class SMTPService:
         server.ehlo()
         return server
 
-    def _normalize_recipients(
-        self,
-        recipients: Union[str, List[str]],
-    ) -> List[str]:
+    def _normalize_recipients(self, recipients: Union[str, List[str]]) -> List[str]:
         if isinstance(recipients, str):
             recipients = [recipients]
 
-        return [
-            email.strip()
-            for email in recipients
-            if email and email.strip()
-        ]
+        return [email.strip() for email in recipients if email and email.strip()]
 
-    def _add_attachments(
-        self,
-        msg: EmailMessage,
-        attachments: Optional[List[str]] = None,
-    ) -> None:
+    def _plain_text_fallback(self, html: str) -> str:
+        if not html:
+            return ""
+
+        return (
+            html.replace("<br>", "\n")
+            .replace("<br/>", "\n")
+            .replace("<br />", "\n")
+            .replace("</p>", "\n")
+            .replace("</li>", "\n")
+            .replace("<li>", "- ")
+            .replace("<p>", "")
+            .replace("<ul>", "")
+            .replace("</ul>", "")
+            .replace("<ol>", "")
+            .replace("</ol>", "")
+            .replace("<strong>", "")
+            .replace("</strong>", "")
+            .replace("<b>", "")
+            .replace("</b>", "")
+            .replace("<em>", "")
+            .replace("</em>", "")
+            .replace("<i>", "")
+            .replace("</i>", "")
+        )
+
+    def _add_attachments(self, msg: EmailMessage, attachments: Optional[List[str]] = None) -> None:
         if not attachments:
             return
 
         for file_path in attachments:
+            if not file_path:
+                continue
+
             path = Path(file_path)
 
             if not path.exists() or not path.is_file():
@@ -69,6 +87,43 @@ class SMTPService:
                     filename=path.name,
                 )
 
+    def _build_message(
+        self,
+        smtp_setting,
+        to_email: Union[str, List[str]],
+        subject: str,
+        body: str,
+        attachments: Optional[List[str]] = None,
+        html_body: Optional[str] = None,
+    ) -> EmailMessage:
+        recipients = self._normalize_recipients(to_email)
+
+        if not recipients:
+            raise ValueError("No valid recipient email provided.")
+
+        final_html_body = html_body or body or ""
+        plain_fallback = self._plain_text_fallback(final_html_body)
+
+        msg = EmailMessage()
+        msg["Subject"] = subject or ""
+        msg["From"] = self._format_from(
+            smtp_setting.smtp_email,
+            smtp_setting.from_name,
+        )
+        msg["To"] = ", ".join(recipients)
+
+        msg.set_content(plain_fallback, charset="utf-8")
+
+        if "<" in final_html_body and ">" in final_html_body:
+            msg.add_alternative(final_html_body, subtype="html", charset="utf-8")
+        else:
+            html_safe = final_html_body.replace("\n", "<br>")
+            msg.add_alternative(html_safe, subtype="html", charset="utf-8")
+
+        self._add_attachments(msg, attachments)
+
+        return msg
+
     def send_email(
         self,
         smtp_setting,
@@ -80,25 +135,14 @@ class SMTPService:
     ) -> bool:
         app_password = decrypt_text(smtp_setting.encrypted_app_password)
 
-        recipients = self._normalize_recipients(to_email)
-
-        if not recipients:
-            raise ValueError("No valid recipient email provided.")
-
-        msg = EmailMessage()
-        msg["Subject"] = subject
-        msg["From"] = self._format_from(
-            smtp_setting.smtp_email,
-            smtp_setting.from_name,
+        msg = self._build_message(
+            smtp_setting=smtp_setting,
+            to_email=to_email,
+            subject=subject,
+            body=body,
+            attachments=attachments,
+            html_body=html_body,
         )
-        msg["To"] = ", ".join(recipients)
-
-        msg.set_content(body or "")
-
-        if html_body:
-            msg.add_alternative(html_body, subtype="html")
-
-        self._add_attachments(msg, attachments)
 
         with self._connect_server(
             smtp_setting.smtp_host,
@@ -134,20 +178,14 @@ class SMTPService:
                 if not email_list:
                     continue
 
-                msg = EmailMessage()
-                msg["Subject"] = subject
-                msg["From"] = self._format_from(
-                    smtp_setting.smtp_email,
-                    smtp_setting.from_name,
+                msg = self._build_message(
+                    smtp_setting=smtp_setting,
+                    to_email=email_list,
+                    subject=subject,
+                    body=body,
+                    attachments=attachments,
+                    html_body=html_body,
                 )
-                msg["To"] = ", ".join(email_list)
-
-                msg.set_content(body or "")
-
-                if html_body:
-                    msg.add_alternative(html_body, subtype="html")
-
-                self._add_attachments(msg, attachments)
 
                 server.send_message(msg)
 

@@ -11,11 +11,14 @@ from app.routes import (
     dashboard_routes,
     document_routes,
     email_routes,
+    email_template_file_routes,
     meeting_routes,
+    meeting_template_files,
     public_task_routes,
     report_routes,
     smtp_routes,
     task_routes,
+    template_routes,
     user_routes,
 )
 
@@ -24,7 +27,6 @@ app = FastAPI(
     description="AI-powered operations automation using FastAPI, CrewAI, and Groq.",
     version="1.0.0",
 )
-
 
 allowed_origins = [
     "http://localhost:5173",
@@ -54,6 +56,15 @@ def ensure_output_directories():
         settings.TASK_ATTACHMENTS_DIR,
         settings.EXPORTS_DIR,
         os.path.join(settings.OUTPUT_DIR, "task_proofs"),
+        os.path.join(settings.OUTPUT_DIR, "templates"),
+        os.path.join(settings.OUTPUT_DIR, "templates", "email"),
+        os.path.join(settings.OUTPUT_DIR, "templates", "mom"),
+        os.path.join("app", "templates"),
+        os.path.join("app", "templates", "email"),
+        os.path.join("app", "templates", "mom"),
+        os.path.join("app", "template_files"),
+        os.path.join("app", "template_files", "email"),
+        os.path.join("app", "template_files", "mom"),
     ]
 
     for directory in directories:
@@ -68,16 +79,18 @@ app.mount(
     name="outputs",
 )
 
-
 app.include_router(auth_routes.router)
 app.include_router(email_routes.router)
 app.include_router(report_routes.router)
 app.include_router(meeting_routes.router)
+app.include_router(meeting_template_files.router)
 app.include_router(task_routes.router)
 app.include_router(public_task_routes.router)
 app.include_router(document_routes.router)
 app.include_router(dashboard_routes.router)
 app.include_router(smtp_routes.router)
+app.include_router(template_routes.router)
+app.include_router(email_template_file_routes.router)
 app.include_router(user_routes.router)
 
 

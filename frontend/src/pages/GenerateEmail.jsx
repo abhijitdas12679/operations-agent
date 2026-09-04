@@ -2,18 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const C = {
-  pageBg: '#F6F7FB',
-  card: '#FFFFFF',
-  border: '#E6E8F0',
-  textH: '#111827',
-  textB: '#4B5563',
-  textMuted: '#6B7280',
-  textLight: '#9CA3AF',
-  primary: '#4F46E5',
-  primaryDark: '#3730A3',
-  primarySoft: '#EEF2FF',
-  success: '#10B981',
-  warning: '#F59E0B',
+  pageBg: 'var(--oa-page-bg)',
+  card: 'var(--oa-card)',
+  border: 'var(--oa-border)',
+  textH: 'var(--oa-text-h)',
+  textB: 'var(--oa-text-b)',
+  textMuted: 'var(--oa-text-muted)',
+  primary: 'var(--oa-primary)',
+  primaryDark: 'var(--oa-primary-dark)',
+  primarySoft: 'var(--oa-primary-soft)',
+  success: 'var(--oa-success-text)',
+  warning: 'var(--oa-warning-text)',
+  info: 'var(--oa-info-text)',
 };
 
 const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
@@ -44,7 +44,7 @@ const GLOBAL_CSS = `
     min-height: 240px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 16px 40px rgba(17, 24, 39, 0.06);
+    box-shadow: 0 16px 40px rgba(var(--oa-shadow-rgb), 0.06);
     animation: fadeUp 0.3s ease both;
     transition: 0.18s ease;
     display: flex;
@@ -53,8 +53,8 @@ const GLOBAL_CSS = `
 
   .generate-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 50px rgba(17, 24, 39, 0.10);
-    border-color: #CBD5E1;
+    box-shadow: 0 20px 50px rgba(var(--oa-shadow-rgb), 0.10);
+    border-color: var(--oa-card-hover-border);
   }
 
   .generate-card::after {
@@ -64,7 +64,7 @@ const GLOBAL_CSS = `
     width: 150px;
     height: 150px;
     border-radius: 999px;
-    background: rgba(79, 70, 229, 0.06);
+    background: var(--oa-deco-circle);
   }
 
   .generate-section-label {
@@ -78,7 +78,7 @@ const GLOBAL_CSS = `
     width: 34px;
     height: 3px;
     border-radius: 999px;
-    background: linear-gradient(90deg, #4F46E5, #2563EB);
+    background: var(--oa-bar-grad);
   }
 
   .generate-section-label span:last-child {
@@ -127,12 +127,12 @@ const GLOBAL_CSS = `
 const emailOptions = [
   {
     path: '/email',
-    label: 'SE',
+    label: 'TE',
     title: 'Single Email',
-    desc: 'Generate one professional AI email using recipient details, tone, and purpose.',
+    desc: 'Search and select from saved DOCX email templates, fill details, generate, download the original template, and send.',
     accent: C.primary,
-    softBg: '#EEF2FF',
-    button: 'Create Single Email',
+    softBg: 'var(--oa-accent-soft-blue)',
+    button: 'Use Email Templates',
   },
   {
     path: '/bulk-email',
@@ -140,7 +140,7 @@ const emailOptions = [
     title: 'Bulk Email',
     desc: 'Upload Excel data and generate personalized emails for multiple recipients.',
     accent: C.success,
-    softBg: '#ECFDF5',
+    softBg: 'var(--oa-accent-soft-green)',
     button: 'Start Bulk Email',
   },
   {
@@ -149,7 +149,7 @@ const emailOptions = [
     title: 'Email Settings',
     desc: 'Connect Gmail, Outlook, or custom SMTP before sending emails from your account.',
     accent: C.warning,
-    softBg: '#FFFBEB',
+    softBg: 'var(--oa-accent-soft-amber)',
     button: 'Configure Settings',
   },
 ];
@@ -180,7 +180,7 @@ export default function GenerateEmail() {
         <div
           style={{
             marginBottom: 24,
-            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 45%, #EEF2FF 100%)',
+            background: 'var(--oa-hero-grad)',
             border: `1px solid ${C.border}`,
             borderRadius: 24,
             padding: 28,
@@ -188,7 +188,7 @@ export default function GenerateEmail() {
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: 22,
-            boxShadow: '0 16px 40px rgba(17, 24, 39, 0.06)',
+            boxShadow: '0 16px 40px rgba(var(--oa-shadow-rgb), 0.06)',
             flexWrap: 'wrap',
           }}
         >
@@ -225,12 +225,12 @@ export default function GenerateEmail() {
                 fontSize: 14,
                 color: C.textMuted,
                 margin: '8px 0 0',
-                maxWidth: 680,
+                maxWidth: 720,
                 lineHeight: 1.7,
               }}
             >
-              Choose the right email workflow to generate, personalize, configure, and send
-              professional emails from one clean workspace.
+              Generate professional emails using saved templates, bulk Excel upload,
+              and your connected SMTP account.
             </p>
           </div>
 
@@ -244,12 +244,12 @@ export default function GenerateEmail() {
             }}
           >
             <div className="generate-card" style={{ minHeight: 'auto', padding: 16 }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textH }}>3</div>
-              <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>Tools</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: C.primary }}>DOCX</div>
+              <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>Templates</div>
             </div>
 
             <div className="generate-card" style={{ minHeight: 'auto', padding: 16 }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.primary }}>AI</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: C.info }}>AI</div>
               <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 700 }}>Powered</div>
             </div>
 

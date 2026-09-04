@@ -7,6 +7,7 @@ import ResetPassword from "./pages/ResetPassword";
 
 import Dashboard from "./pages/Dashboard";
 import GenerateEmail from "./pages/GenerateEmail";
+import EmailAutomation from "./pages/EmailAutomation";
 import EmailGenerator from "./pages/EmailGenerator";
 import BulkEmailSender from "./pages/BulkEmailSender";
 import EmailSettings from "./pages/EmailSettings";
@@ -41,16 +42,107 @@ export default function App() {
         <Route path="/task-update/:token" element={<PublicTaskUpdate />} />
 
         {/* Protected Admin Routes */}
-        <Route path="/" element={<ProtectedPage><Dashboard /></ProtectedPage>} />
-        <Route path="/generate-email" element={<ProtectedPage><GenerateEmail /></ProtectedPage>} />
-        <Route path="/email" element={<ProtectedPage><EmailGenerator /></ProtectedPage>} />
-        <Route path="/bulk-email" element={<ProtectedPage><BulkEmailSender /></ProtectedPage>} />
-        <Route path="/email-settings" element={<ProtectedPage><EmailSettings /></ProtectedPage>} />
-        <Route path="/report" element={<ProtectedPage><DailyReport /></ProtectedPage>} />
-        <Route path="/send-report" element={<ProtectedPage><SendReport /></ProtectedPage>} />
-        <Route path="/meeting" element={<ProtectedPage><MeetingMOM /></ProtectedPage>} />
-        <Route path="/send-mom" element={<ProtectedPage><SendMOM /></ProtectedPage>} />
-        <Route path="/tasks" element={<ProtectedPage><TaskTracker /></ProtectedPage>} />
+        <Route
+          path="/"
+          element={
+            <ProtectedPage>
+              <Dashboard />
+            </ProtectedPage>
+          }
+        />
+
+        {/* Email module landing page */}
+        <Route
+          path="/generate-email"
+          element={
+            <ProtectedPage>
+              <GenerateEmail />
+            </ProtectedPage>
+          }
+        />
+
+        {/* Template-based single email page */}
+        <Route
+          path="/email"
+          element={
+            <ProtectedPage>
+              <EmailAutomation />
+            </ProtectedPage>
+          }
+        />
+
+        {/* Optional manual email generator page */}
+        <Route
+          path="/manual-email"
+          element={
+            <ProtectedPage>
+              <EmailGenerator />
+            </ProtectedPage>
+          }
+        />
+
+        <Route
+          path="/bulk-email"
+          element={
+            <ProtectedPage>
+              <BulkEmailSender />
+            </ProtectedPage>
+          }
+        />
+
+        <Route
+          path="/email-settings"
+          element={
+            <ProtectedPage>
+              <EmailSettings />
+            </ProtectedPage>
+          }
+        />
+
+        <Route
+          path="/report"
+          element={
+            <ProtectedPage>
+              <DailyReport />
+            </ProtectedPage>
+          }
+        />
+
+        <Route
+          path="/send-report"
+          element={
+            <ProtectedPage>
+              <SendReport />
+            </ProtectedPage>
+          }
+        />
+
+        <Route
+          path="/meeting"
+          element={
+            <ProtectedPage>
+              <MeetingMOM />
+            </ProtectedPage>
+          }
+        />
+
+        <Route
+          path="/send-mom"
+          element={
+            <ProtectedPage>
+              <SendMOM />
+            </ProtectedPage>
+          }
+        />
+
+        <Route
+          path="/tasks"
+          element={
+            <ProtectedPage>
+              <TaskTracker />
+            </ProtectedPage>
+          }
+        />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

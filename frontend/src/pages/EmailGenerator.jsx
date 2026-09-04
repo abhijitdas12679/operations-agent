@@ -2,20 +2,20 @@ import React, { useEffect, useState } from 'react';
 import api from '../api';
 
 const C = {
-  pageBg: '#F6F7FB',
-  card: '#FFFFFF',
-  border: '#E6E8F0',
-  textH: '#111827',
-  textB: '#4B5563',
-  textMuted: '#6B7280',
-  textLight: '#9CA3AF',
-  primary: '#4F46E5',
-  primaryDark: '#3730A3',
-  primarySoft: '#EEF2FF',
-  successBg: '#ECFDF5',
-  successText: '#047857',
-  dangerBg: '#FEF2F2',
-  dangerText: '#B91C1C',
+  pageBg: 'var(--oa-page-bg)',
+  card: 'var(--oa-card)',
+  border: 'var(--oa-border)',
+  textH: 'var(--oa-text-h)',
+  textB: 'var(--oa-text-b)',
+  textMuted: 'var(--oa-text-muted)',
+  textLight: 'var(--oa-text-light)',
+  primary: 'var(--oa-primary)',
+  primaryDark: 'var(--oa-primary-dark)',
+  primarySoft: 'var(--oa-primary-soft)',
+  successBg: 'var(--oa-success-bg)',
+  successText: 'var(--oa-success-text)',
+  dangerBg: 'var(--oa-danger-bg)',
+  dangerText: 'var(--oa-danger-text)',
 };
 
 const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
@@ -23,9 +23,7 @@ const FONT = "'Inter', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-  *, *::before, *::after {
-    box-sizing: border-box;
-  }
+  *, *::before, *::after { box-sizing: border-box; }
 
   body {
     margin: 0;
@@ -45,7 +43,7 @@ const GLOBAL_CSS = `
     background: ${C.card};
     border: 1px solid ${C.border};
     border-radius: 20px;
-    box-shadow: 0 16px 40px rgba(17, 24, 39, 0.06);
+    box-shadow: 0 16px 40px rgba(var(--oa-shadow-rgb), 0.06);
     animation: fadeUp 0.3s ease both;
   }
 
@@ -54,7 +52,7 @@ const GLOBAL_CSS = `
   .email-select {
     width: 100%;
     border: 1px solid ${C.border};
-    background: #FFFFFF;
+    background: var(--oa-card);
     border-radius: 12px;
     padding: 12px 14px;
     font-size: 13px;
@@ -68,7 +66,7 @@ const GLOBAL_CSS = `
   .email-textarea:focus,
   .email-select:focus {
     border-color: ${C.primary};
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+    box-shadow: 0 0 0 4px rgba(var(--oa-focus-rgb), 0.12);
   }
 
   .email-label {
@@ -101,7 +99,7 @@ const GLOBAL_CSS = `
   .email-btn-primary {
     background: linear-gradient(135deg, #4F46E5, #2563EB);
     color: #fff;
-    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.26);
+    box-shadow: 0 10px 24px rgba(var(--oa-focus-rgb), 0.26);
   }
 
   .email-btn-secondary {
@@ -110,7 +108,7 @@ const GLOBAL_CSS = `
   }
 
   .email-btn-light {
-    background: #F9FAFB;
+    background: var(--oa-subtle-bg);
     color: ${C.textB};
     border: 1px solid ${C.border};
   }
@@ -132,7 +130,7 @@ const GLOBAL_CSS = `
     width: 34px;
     height: 3px;
     border-radius: 999px;
-    background: linear-gradient(90deg, #4F46E5, #2563EB);
+    background: var(--oa-bar-grad);
   }
 
   .email-section-label span:last-child {
@@ -151,14 +149,14 @@ const GLOBAL_CSS = `
     padding: 14px;
     margin-bottom: 10px;
     cursor: pointer;
-    background: #FFFFFF;
+    background: var(--oa-card);
     transition: 0.18s ease;
   }
 
   .email-history-item:hover {
-    background: #F8FAFC;
+    background: var(--oa-subtle-bg);
     transform: translateY(-1px);
-    box-shadow: 0 10px 22px rgba(17, 24, 39, 0.05);
+    box-shadow: 0 10px 22px var(--oa-hover-shadow);
   }
 
   .email-alert-error,
@@ -174,13 +172,13 @@ const GLOBAL_CSS = `
   .email-alert-error {
     background: ${C.dangerBg};
     color: ${C.dangerText};
-    border-color: #FECACA;
+    border-color: var(--oa-danger-bg);
   }
 
   .email-alert-success {
     background: ${C.successBg};
     color: ${C.successText};
-    border-color: #A7F3D0;
+    border-color: var(--oa-success-bg);
   }
 
   .email-empty-state {
@@ -188,7 +186,7 @@ const GLOBAL_CSS = `
     text-align: center;
     color: ${C.textLight};
     font-size: 13px;
-    background: #F9FAFB;
+    background: var(--oa-subtle-bg);
     border-radius: 18px;
     border: 1px dashed ${C.border};
   }
@@ -198,7 +196,7 @@ const GLOBAL_CSS = `
   }
 
   .email-scroll::-webkit-scrollbar-thumb {
-    background: #CBD5E1;
+    background: var(--oa-thumb);
     border-radius: 999px;
   }
 
@@ -209,6 +207,33 @@ const GLOBAL_CSS = `
     border-top-color: #fff;
     border-radius: 50%;
     animation: emailSpin 0.75s linear infinite;
+  }
+
+  .email-preview-content {
+    font-family: ${FONT};
+    font-size: 14px;
+    line-height: 1.85;
+    color: ${C.textB};
+  }
+
+  .email-preview-content p {
+    margin: 0 0 12px;
+  }
+
+  .email-preview-content ul,
+  .email-preview-content ol {
+    margin: 10px 0 14px 22px;
+    padding: 0;
+  }
+
+  .email-preview-content li {
+    margin-bottom: 6px;
+  }
+
+  .email-preview-content strong,
+  .email-preview-content b {
+    font-weight: 800;
+    color: ${C.textH};
   }
 
   @media (max-width: 1180px) {
@@ -483,6 +508,21 @@ export default function EmailGenerator() {
     }
   };
 
+  const downloadTemplate = () => {
+    if (!result) {
+      alert('Please generate or select an email first.');
+      return;
+    }
+
+    if (!result.template_id) {
+      alert('This email was not generated from a saved template, so original DOCX template is not available.');
+      return;
+    }
+
+    const baseURL = api.defaults.baseURL || '';
+    window.open(`${baseURL}/templates/${result.template_id}/download`, '_blank');
+  };
+
   return (
     <>
       <style>{GLOBAL_CSS}</style>
@@ -501,7 +541,7 @@ export default function EmailGenerator() {
           style={{
             padding: 28,
             marginBottom: 24,
-            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 45%, #EEF2FF 100%)',
+            background: 'var(--oa-hero-grad)',
           }}
         >
           <div
@@ -748,7 +788,7 @@ export default function EmailGenerator() {
                 <>
                   <div
                     style={{
-                      background: '#F9FAFB',
+                      background: 'var(--oa-subtle-bg)',
                       border: `1px solid ${C.border}`,
                       borderRadius: 16,
                       padding: 16,
@@ -772,14 +812,14 @@ export default function EmailGenerator() {
                         style={{
                           border: `1px solid ${C.border}`,
                           borderRadius: 18,
-                          background: '#FFFFFF',
+                          background: 'var(--oa-card-inner)',
                           overflow: 'hidden',
                           marginBottom: 16,
                         }}
                       >
                         <div
                           style={{
-                            background: 'linear-gradient(135deg, #F8FAFC, #EEF2FF)',
+                            background: 'var(--oa-report-top-grad)',
                             borderBottom: `1px solid ${C.border}`,
                             padding: '18px 20px',
                           }}
@@ -814,18 +854,12 @@ export default function EmailGenerator() {
                             EMAIL BODY
                           </div>
 
-                          <pre
-                            style={{
-                              whiteSpace: 'pre-wrap',
-                              fontFamily: FONT,
-                              fontSize: 14,
-                              lineHeight: 1.85,
-                              color: C.textB,
-                              margin: 0,
+                          <div
+                            className="email-preview-content"
+                            dangerouslySetInnerHTML={{
+                              __html: result.generated_email || '',
                             }}
-                          >
-                            {result.generated_email}
-                          </pre>
+                          />
                         </div>
                       </div>
 
@@ -836,6 +870,13 @@ export default function EmailGenerator() {
                           disabled={result.status === 'sent'}
                         >
                           Edit Email
+                        </button>
+
+                        <button
+                          className="email-btn email-btn-light"
+                          onClick={downloadTemplate}
+                        >
+                          📄 Download Template
                         </button>
 
                         <button

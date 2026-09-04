@@ -1,9 +1,13 @@
 import os
 import re
+import shutil
+import subprocess
 from datetime import datetime
+from pathlib import Path
+
+from fastapi import HTTPException
 
 from docx import Document
-from docx.enum.section import WD_SECTION
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches, Pt, RGBColor
@@ -17,6 +21,101 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 
 OUTPUT_DIR = os.path.join(os.getcwd(), "outputs", "exports")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+
+def find_libreoffice() -> str | None:
+    libreoffice = (
+        shutil.which("libreoffice")
+        or shutil.which("soffice")
+        or shutil.which("soffice.exe")
+    )
+
+    if libreoffice:
+        return libreoffice
+
+    windows_paths = [
+        r"C:\Program Files\LibreOffice\program\soffice.exe",
+        r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
+    ]
+
+    for path in windows_paths:
+        if os.path.exists(path):
+            return path
+
+    return None
+
+
+def convert_docx_to_pdf(docx_path: str) -> str:
+    """Convert a DOCX to an exact PDF replica using LibreOffice headless.
+
+    Shared by the document export route and the MOM email send flow so the
+    preview, download, and emailed attachment are always the exact same file.
+    """
+    docx_file = Path(docx_path)
+
+    if not docx_file.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="DOCX file not found for PDF conversion",
+        )
+
+    output_dir = docx_file.parent
+    expected_pdf = output_dir / f"{docx_file.stem}.pdf"
+
+    libreoffice = find_libreoffice()
+
+    if not libreoffice:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "LibreOffice is required for exact DOCX-to-PDF conversion. "
+                "For Windows, install LibreOffice and add "
+                "'C:\\Program Files\\LibreOffice\\program' to PATH. "
+                "For Hugging Face, add libreoffice, libreoffice-writer, and fonts-dejavu "
+                "inside packages.txt, not requirements.txt."
+            ),
+        )
+
+    try:
+        subprocess.run(
+            [
+                libreoffice,
+                "--headless",
+                "--convert-to",
+                "pdf",
+                "--outdir",
+                str(output_dir),
+                str(docx_file),
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=120,
+        )
+    except subprocess.CalledProcessError as e:
+        error_text = e.stderr.decode(errors="ignore") if e.stderr else str(e)
+        raise HTTPException(
+            status_code=500,
+            detail=f"DOCX to PDF conversion failed: {error_text}",
+        )
+    except subprocess.TimeoutExpired:
+        raise HTTPException(
+            status_code=500,
+            detail="DOCX to PDF conversion timed out. Please try again.",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"DOCX to PDF conversion failed: {str(e)}",
+        )
+
+    if not expected_pdf.exists():
+        raise HTTPException(
+            status_code=500,
+            detail="PDF conversion completed but output file was not found",
+        )
+
+    return str(expected_pdf)
 
 
 def clean_text(text: str) -> str:
