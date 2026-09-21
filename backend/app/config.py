@@ -13,20 +13,14 @@ class Settings:
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
     GROQ_MODEL: str = os.getenv(
         "GROQ_MODEL",
-        "llama-3.3-70b-versatile",
+        "openai/gpt-oss-120b",
     )
 
     # =====================================================
     # DATABASE
     # =====================================================
-    # Use the complete PostgreSQL connection string.
-    # For Render, set DATABASE_URL in the Render Environment
-    # Variables using your Neon PostgreSQL connection string.
-
-    if not DATABASE_URL:
-        raise RuntimeError(
-            "DATABASE_URL environment variable is not set."
-        )
+    
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "")
     
     # =====================================================
     # AUTH
