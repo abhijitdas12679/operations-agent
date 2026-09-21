@@ -17,27 +17,17 @@ class Settings:
     )
 
     # =====================================================
-    # POSTGRESQL
+    # DATABASE
     # =====================================================
+    # Use the complete PostgreSQL connection string.
+    # For Render, set DATABASE_URL in the Render Environment
+    # Variables using your Neon PostgreSQL connection string.
 
-    POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "localhost")
-    POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", "5432")
-    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
-    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
-    POSTGRES_DATABASE: str = os.getenv(
-        "POSTGRES_DATABASE",
-        "operations_agent",
-    )
-
-    @property
-    def DATABASE_URL(self) -> str:
-        return (
-            f"postgresql+psycopg2://"
-            f"{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
-            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}"
-            f"/{self.POSTGRES_DATABASE}"
+    if not DATABASE_URL:
+        raise RuntimeError(
+            "DATABASE_URL environment variable is not set."
         )
-
+    
     # =====================================================
     # AUTH
     # =====================================================
@@ -62,7 +52,7 @@ class Settings:
 
     FRONTEND_URL: str = os.getenv(
         "FRONTEND_URL",
-        "http://localhost:5173",
+        "https://operations-agent-two.vercel.app",
     )
 
     # =====================================================
